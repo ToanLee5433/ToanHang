@@ -50,7 +50,7 @@ const firebaseConfig = {
     messagingSenderId: "756408901257",
     appId: "1:756408901257:web:6af134916d555bd61b3058",
     measurementId: "G-ECNQQN35XG",
-    databaseURL: "https://gamechohangham-default-rtdb.asia-southeast1.firebasedatabase.app"
+    databaseURL: "https://gamechohangham-default-rtdb.firebaseio.com"
 };
 
 // Export config globally for compat scripts
