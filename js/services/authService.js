@@ -12,13 +12,19 @@ import {
     updateDoc,
     getDoc
 } from '../config/firebase.js';
+import { signInWithRedirect, getRedirectResult } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
 
 class AuthService {
     constructor() {
         this.currentUser = null;
         this.authStateListeners = [];
         this.googleProvider = new GoogleAuthProvider();
+        this.googleProvider.addScope('profile');
+        this.googleProvider.addScope('email');
+        this.googleProvider.setCustomParameters({ prompt: 'select_account' });
         this.init();
+        // Check for redirect result
+        this.checkRedirectResult();
     }
 
     init() {
@@ -39,11 +45,33 @@ class AuthService {
     // Sign in with Google
     async signInWithGoogle() {
         try {
+            console.log('🔐 Attempting Google sign-in with popup...');
             const result = await signInWithPopup(auth, this.googleProvider);
+            console.log('✅ Google sign-in successful:', result.user.displayName);
             return result.user;
         } catch (error) {
-            console.error('Google sign-in error:', error);
+            console.error('Google popup sign-in error:', error.code, error.message);
+            // If popup is blocked or fails, try redirect
+            if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+                console.log('🔄 Popup failed, falling back to redirect...');
+                await signInWithRedirect(auth, this.googleProvider);
+                return null; // Will be handled by checkRedirectResult after redirect
+            }
             throw error;
+        }
+    }
+
+    // Check for redirect result (called on page load)
+    async checkRedirectResult() {
+        try {
+            const result = await getRedirectResult(auth);
+            if (result && result.user) {
+                console.log('✅ Google redirect sign-in successful:', result.user.displayName);
+            }
+        } catch (error) {
+            if (error.code !== 'auth/no-current-user') {
+                console.error('Redirect result error:', error);
+            }
         }
     }
 

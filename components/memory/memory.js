@@ -361,89 +361,143 @@ class MemoryGame {
         document.querySelector('.level-description').textContent = levelData.description;
     }
     
-    // Online Multiplayer Functions
-    joinRoom() {
-        const roomCode = document.getElementById('room-code').value.trim();
-        const playerName = document.getElementById('player-name').value.trim();
-        
-        if (!playerName) {
-            alert('Vui lòng nhập tên của bạn!');
-            return;
-        }
-        
+    // Online Multiplayer Functions - Firebase RTDB Real Implementation
+    async joinRoom() {
+        const roomCode = document.getElementById('room-code')?.value?.trim() || '';
+        const playerName = document.getElementById('player-name')?.value?.trim() || 'Khách';
+        if (!playerName) { alert('Vui lòng nhập tên!'); return; }
         this.playerName = playerName;
-        
-        if (roomCode) {
-            // Join existing room
-            this.roomCode = roomCode;
-            this.isHost = false;
-        } else {
-            // Create new room
-            this.roomCode = this.generateRoomCode();
-            this.isHost = true;
+
+        const statusEl = document.getElementById('room-status');
+        if (statusEl) { statusEl.textContent = '⏳ Đang kết nối...'; statusEl.classList.remove('hidden'); }
+
+        const svc = window.rtdbService;
+        try {
+            if (roomCode) {
+                // Join existing room
+                const { roomId, playerId, room } = await svc.joinRoom('memory', roomCode, playerName);
+                this.roomCode = roomId;
+                this.isHost = false;
+                this.myPlayerId = playerId;
+                if (statusEl) statusEl.textContent = `✅ Đã vào phòng #${roomId}`;
+                this.listenRoomUpdates(roomId);
+                // Set ready
+                await svc.setReady('memory', roomId, true);
+            } else {
+                // Create new room
+                const { roomId, playerId } = await svc.createRoom('memory', playerName, { maxPlayers: 2, level: this.currentLevel });
+                this.roomCode = roomId;
+                this.isHost = true;
+                this.myPlayerId = playerId;
+                if (statusEl) statusEl.textContent = `🏠 Phòng #${roomId} đã tạo! Mã phòng: ${roomId}`;
+                // Show room code to copy
+                const codeDisplay = document.getElementById('room-code');
+                if (codeDisplay) codeDisplay.value = roomId;
+                this.listenRoomUpdates(roomId);
+            }
+        } catch (err) {
+            console.error('joinRoom error:', err);
+            if (statusEl) statusEl.textContent = `❌ Lỗi: ${err.message}`;
         }
-        
-        this.connectToRoom();
     }
-    
-    generateRoomCode() {
-        return Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    listenRoomUpdates(roomId) {
+        const svc = window.rtdbService;
+        svc.listenRoom('memory', roomId, (room) => {
+            if (!room) return;
+            const players = Object.values(room.players || {});
+
+            // Update player names
+            if (players.length >= 1) {
+                const p1 = players[0];
+                const p1el = document.getElementById('player1-name');
+                if (p1el) p1el.textContent = p1.name;
+                const p1sc = document.getElementById('player1-score');
+                if (p1sc) p1sc.textContent = p1.score || 0;
+            }
+            if (players.length >= 2) {
+                const p2 = players[1];
+                const p2el = document.getElementById('player2-name');
+                if (p2el) p2el.textContent = p2.name;
+                const p2sc = document.getElementById('player2-score');
+                if (p2sc) p2sc.textContent = p2.score || 0;
+                // 2 players ready -> show players info
+                const playersInfo = document.getElementById('players-info');
+                if (playersInfo) playersInfo.style.display = 'flex';
+                const statusEl = document.getElementById('room-status');
+                if (statusEl) statusEl.textContent = '✅ 2 người chơi đã vào! Sẵn sàng!';
+            }
+
+            // Sync currentPlayer from gameData
+            if (room.gameData?.currentPlayer) {
+                this.currentPlayer = room.gameData.currentPlayer;
+                this.updatePlayerTurn();
+            }
+
+            // Sync flipped card from opponent
+            if (room.gameData?.lastFlip && room.gameData.lastFlipBy !== this.myPlayerId) {
+                const idx = room.gameData.lastFlip;
+                if (idx !== undefined && !this.cards[idx]?.flipped && !this.cards[idx]?.matched) {
+                    this.flipCardSilent(idx);
+                }
+            }
+        });
+
+        // Listen to moves
+        svc.listenMoves('memory', roomId, (move) => {
+            if (move.playerId !== this.myPlayerId && move.type === 'flip') {
+                this.flipCardSilent(move.cardIndex);
+            }
+        });
     }
-    
-    connectToRoom() {
-        // Simulate room connection (replace with actual Firebase implementation)
-        document.getElementById('room-status').textContent = 
-            this.isHost ? `Phòng ${this.roomCode} đã tạo. Đang chờ người chơi...` : `Đang kết nối phòng ${this.roomCode}...`;
-        document.getElementById('room-status').classList.remove('hidden');
-        
-        // Simulate finding another player after 2 seconds
-        setTimeout(() => {
-            this.onPlayerJoined();
-        }, 2000);
+
+    flipCardSilent(index) {
+        if (!this.cards[index] || this.cards[index].flipped || this.cards[index].matched) return;
+        this.cards[index].flipped = true;
+        this.flippedCards.push(index);
+        const el = document.querySelector(`[data-index="${index}"]`);
+        if (el) el.classList.add('flipped');
+        if (this.flippedCards.length === 2) {
+            this.moves++;
+            setTimeout(() => this.checkMatch(), 1000);
+        }
     }
-    
-    onPlayerJoined() {
-        document.getElementById('room-status').textContent = 'Đã kết nối thành công!';
-        document.getElementById('room-status').classList.add('connected');
-        document.getElementById('players-info').style.display = 'flex';
-        
-        // Update player names
-        document.getElementById('player1-name').textContent = this.isHost ? this.playerName : 'Đối thủ';
-        document.getElementById('player2-name').textContent = this.isHost ? 'Đối thủ' : this.playerName;
-        
-        this.updatePlayerTurn();
-    }
-    
+
+    generateRoomCode() { return Math.floor(100000 + Math.random() * 900000).toString(); }
+
     isPlayerTurn() {
-        return (this.isHost && this.currentPlayer === 1) || (!this.isHost && this.currentPlayer === 2);
+        if (!this.isOnlineMode) return true;
+        if (this.isHost) return this.currentPlayer === 1;
+        return this.currentPlayer === 2;
     }
-    
+
     switchPlayer() {
         this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
         this.updatePlayerTurn();
+        if (this.isOnlineMode && window.rtdbService?.currentRoomId) {
+            window.rtdbService.updateGameData('memory', this.roomCode, { currentPlayer: this.currentPlayer });
+        }
     }
-    
+
     updatePlayerTurn() {
-        document.getElementById('player1-card').classList.toggle('active', this.currentPlayer === 1);
-        document.getElementById('player2-card').classList.toggle('active', this.currentPlayer === 2);
+        document.getElementById('player1-card')?.classList.toggle('active', this.currentPlayer === 1);
+        document.getElementById('player2-card')?.classList.toggle('active', this.currentPlayer === 2);
     }
-    
+
     updatePlayerScore() {
-        if (this.isHost) {
-            if (this.currentPlayer === 1) {
+        const myIdx = this.isHost ? 1 : 2;
+        if (this.currentPlayer === myIdx) {
+            if (myIdx === 1) {
                 this.players.player1.score += 10;
-                document.getElementById('player1-score').textContent = this.players.player1.score;
+                const el = document.getElementById('player1-score');
+                if (el) el.textContent = this.players.player1.score;
             } else {
                 this.players.player2.score += 10;
-                document.getElementById('player2-score').textContent = this.players.player2.score;
+                const el = document.getElementById('player2-score');
+                if (el) el.textContent = this.players.player2.score;
             }
-        } else {
-            if (this.currentPlayer === 2) {
-                this.players.player2.score += 10;
-                document.getElementById('player2-score').textContent = this.players.player2.score;
-            } else {
-                this.players.player1.score += 10;
-                document.getElementById('player1-score').textContent = this.players.player1.score;
+            if (this.isOnlineMode && this.roomCode) {
+                window.rtdbService?.updateScore('memory', this.roomCode, myIdx === 1 ? this.players.player1.score : this.players.player2.score);
             }
         }
     }
