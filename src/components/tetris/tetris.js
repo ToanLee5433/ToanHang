@@ -347,18 +347,6 @@ class TetrisGame {
                 }, 10);
             }
         }
-    }log('Enhanced Tetris Game initializing...');
-        
-        // Load settings and stats
-        this.loadSettings();
-        this.loadStats();
-        
-        // Wait for DOM to be ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.setupGame());
-        } else {
-            this.setupGame();
-        }
     }
     
     
