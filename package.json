@@ -1,0 +1,60 @@
+{
+  "name": "tetris-multiplayer",
+  "version": "1.0.0",
+  "description": "A modern Tetris multiplayer game built with HTML5, Canvas and WebSocket",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon server/index.js",
+    "client": "live-server src --port=3000 --open=/index.html",
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "sass src/css/main.scss:src/css/main.css --style compressed",
+    "build:js": "webpack --mode production",
+    "deploy": "npm run build && vercel --prod",
+    "deploy:firebase": "firebase deploy",
+    "test": "jest",
+    "lint": "eslint src/js/**/*.js",
+    "format": "prettier --write src/**/*.{js,css,html}"
+  },
+  "keywords": [
+    "tetris",
+    "multiplayer",
+    "html5",
+    "canvas",
+    "game",
+    "websocket",
+    "firebase"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "firebase": "^10.14.1",
+    "gsap": "^3.12.2",
+    "howler": "^2.2.4",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "eslint": "^8.50.0",
+    "jest": "^29.7.0",
+    "live-server": "^1.2.2",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.0.3",
+    "sass": "^1.69.0",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/tetris-multiplayer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/tetris-multiplayer/issues"
+  },
+  "homepage": "https://github.com/yourusername/tetris-multiplayer#readme"
+}

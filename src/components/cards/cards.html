@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🃏 Cards Online - Game cho Hằng xinh gái ❤️</title>
+    <meta name="description" content="Cards Online - Tập hợp các game bài hay nhất Việt Nam chơi online">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../../css/main.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2E8B57 0%, #228B22 100%);
+            min-height: 100vh;
+            font-family: 'Roboto', sans-serif;
+            overflow-x: hidden;
+            padding: 10px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(220, 20, 60, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(0, 0, 139, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .back-to-hub {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #e83e8c;
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: #495057;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .back-to-hub:hover {
+            background: #e83e8c;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(232, 62, 140, 0.3);
+        }
+
+        .cards-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+        }
+
+        .cards-title {
+            font-family: "Press Start 2P", monospace;
+            font-size: clamp(1.2rem, 4vw, 2.5rem);
+            color: #FFD700;
+            margin-bottom: 0.5rem;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        }
+
+        .cards-subtitle {
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            color: #FFF;
+            font-weight: 500;
+        }
+
+        .game-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Game Selection */
+        .game-selection {
+            margin-bottom: 30px;
+        }
+
+        .game-selection h2 {
+            text-align: center;
+            color: #2E8B57;
+            margin-bottom: 20px;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+        }
+
+        .game-modes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .game-mode-card {
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+            border: 3px solid #dee2e6;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #DC143C, #FFD700, #0000CD, #228B22);
+        }
+
+        .game-mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            border-color: #2E8B57;
+        }
+
+        .game-mode-card.selected {
+            border-color: #2E8B57;
+            background: linear-gradient(135deg, #f0fff0, #e6ffe6);
+            transform: scale(1.02);
+        }
+
+        .game-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .game-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2E8B57;
+            margin-bottom: 10px;
+        }
+
+        .game-description {
+            color: #6c757d;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .players-count {
+            background: #2E8B57;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Room Setup */
+        .room-setup {
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            border: 2px solid #2196F3;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .room-setup.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .room-setup h3 {
+            color: #2196F3;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        .room-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+
+        .form-input {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .form-select {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .room-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .room-btn {
+            background: linear-gradient(135deg, #2E8B57, #228B22);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            min-width: 150px;
+        }
+
+        .room-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+        }
+
+        .room-btn.secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+
+        /* Game Status */
+        .game-status {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            display: none;
+        }
+
+        .game-status.active {
+            display: block;
+        }
+
+        .status-message {
+            color: #856404;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .room-info {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        /* Players List */
+        .players-section {
+            display: none;
+        }
+
+        .players-section.active {
+            display: block;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .player-card {
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .player-card.host {
+            border-color: #FFD700;
+            background: linear-gradient(135deg, #fffbf0, #fff8e1);
+        }
+
+        .player-card.ready {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f0fff4, #e6fffa);
+        }
+
+        .player-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin: 0 auto 10px;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .player-status {
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .player-status.host {
+            background: #FFD700;
+            color: #856404;
+        }
+
+        .player-status.ready {
+            background: #28a745;
+            color: white;
+        }
+
+        .player-status.waiting {
+            background: #6c757d;
+            color: white;
+        }
+
+        /* Game Area */
+        .game-area {
+            display: none;
+            min-height: 500px;
+        }
+
+        .game-area.active {
+            display: block;
+        }
+
+        .game-board {
+            background: #2E8B57;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-board::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255,255,255,0.05) 2px,
+                    rgba(255,255,255,0.05) 4px
+                );
+            pointer-events: none;
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .playing-card {
+            width: 60px;
+            height: 84px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .playing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .playing-card.selected {
+            transform: translateY(-10px);
+            border-color: #FFD700;
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .card-rank {
+            font-size: 0.8rem;
+            line-height: 1;
+        }
+
+        .card-suit {
+            font-size: 1.2rem;
+        }
+
+        .card-red {
+            color: #DC143C;
+        }
+
+        .card-black {
+            color: #000;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #001f3f, #0074D9);
+            color: white;
+            font-size: 0.7rem;
+        }
+
+        /* Game Controls */
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .game-btn {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .game-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .game-btn.primary {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .game-btn.secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+
+        /* Chat */
+        .chat-section {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 300px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .chat-section.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: #2E8B57;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+        }
+
+        .chat-input-container {
+            padding: 10px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            gap: 5px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .chat-send {
+            background: #2E8B57;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .chat-section {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 100%;
+                height: 300px;
+                margin-top: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+
+            .game-container {
+                padding: 15px;
+            }
+
+            .game-modes {
+                grid-template-columns: 1fr;
+            }
+
+            .room-form {
+                grid-template-columns: 1fr;
+            }
+
+            .room-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .players-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .playing-card {
+                width: 50px;
+                height: 70px;
+            }
+
+            .game-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .back-to-hub {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 10px;
+                display: inline-block;
+            }
+
+            .cards-header {
+                margin-top: 10px;
+            }
+
+            .playing-card {
+                width: 45px;
+                height: 63px;
+                font-size: 0.8rem;
+            }
+
+            .card-suit {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back to Hub Button -->
+    <a href="../../index.html" class="back-to-hub">← Về Game Hub</a>
+
+    <!-- Cards Header -->
+    <div class="cards-header">
+        <h1 class="cards-title">🃏 CARDS ONLINE 🃏</h1>
+        <p class="cards-subtitle">Tập hợp các game bài hay nhất Việt Nam ❤️</p>
+    </div>
+
+    <!-- Game Container -->
+    <div class="game-container">
+        <!-- Game Selection -->
+        <div class="game-selection" id="game-selection">
+            <h2>🎮 Chọn loại game bài</h2>
+            
+            <div class="game-modes">
+                <div class="game-mode-card" data-game="tienlen">
+                    <div class="game-icon">🚀</div>
+                    <div class="game-name">Tiến Lên Miền Nam</div>
+                    <div class="game-description">Game bài truyền thống Việt Nam với luật chơi đầy thú vị và chiến thuật</div>
+                    <div class="players-count">2-4 người chơi</div>
+                </div>
+
+                <div class="game-mode-card" data-game="loc">
+                    <div class="game-icon">💨</div>
+                    <div class="game-name">Lốc</div>
+                    <div class="game-description">Game bài nhanh với tốc độ cao, cần phản xạ và tư duy nhạy bén</div>
+                    <div class="players-count">2-6 người chơi</div>
+                </div>
+
+                <div class="game-mode-card" data-game="bala">
+                    <div class="game-icon">🎯</div>
+                    <div class="game-name">Ba Lá</div>
+                    <div class="game-description">Game bài đơn giản nhưng không kém phần hấp dẫn với 3 lá bài</div>
+                    <div class="players-count">2-4 người chơi</div>
+                </div>
+
+                <div class="game-mode-card" data-game="poker">
+                    <div class="game-icon">♠️</div>
+                    <div class="game-name">Poker Texas</div>
+                    <div class="game-description">Game bài quốc tế với tính chiến thuật cao và yếu tố tâm lý</div>
+                    <div class="players-count">2-8 người chơi</div>
+                </div>
+
+                <div class="game-mode-card" data-game="blackjack">
+                    <div class="game-icon">🃏</div>
+                    <div class="game-name">Blackjack 21</div>
+                    <div class="game-description">Game bài kinh điển với mục tiêu đạt tổng điểm gần 21 nhất</div>
+                    <div class="players-count">2-6 người chơi</div>
+                </div>
+
+                <div class="game-mode-card" data-game="solitaire">
+                    <div class="game-icon">🏆</div>
+                    <div class="game-name">Solitaire</div>
+                    <div class="game-description">Game bài một người chơi kinh điển với nhiều biến thể thú vị</div>
+                    <div class="players-count">1 người chơi</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Room Setup -->
+        <div class="room-setup" id="room-setup">
+            <h3>🎮 Thiết lập phòng chơi</h3>
+            
+            <div class="room-form">
+                <div class="form-group">
+                    <label class="form-label">Tên người chơi</label>
+                    <input type="text" class="form-input" id="player-name" placeholder="Nhập tên của bạn" value="Player1">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Mã phòng (để trống tạo mới)</label>
+                    <input type="text" class="form-input" id="room-code" placeholder="Nhập mã phòng">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Số người chơi tối đa</label>
+                    <select class="form-select" id="max-players">
+                        <option value="2">2 người</option>
+                        <option value="3">3 người</option>
+                        <option value="4" selected>4 người</option>
+                        <option value="6">6 người</option>
+                        <option value="8">8 người</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu phòng (tùy chọn)</label>
+                    <input type="password" class="form-input" id="room-password" placeholder="Để trống nếu công khai">
+                </div>
+            </div>
+
+            <div class="room-actions">
+                <button class="room-btn" id="create-room-btn">Tạo phòng</button>
+                <button class="room-btn" id="join-room-btn">Tham gia phòng</button>
+                <button class="room-btn secondary" id="back-to-selection-btn">Quay lại</button>
+            </div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="game-status" id="game-status">
+            <div class="status-message" id="status-message">Đang kết nối...</div>
+            <div class="room-info" id="room-info">Phòng: <span id="current-room">-</span> | Game: <span id="current-game">-</span></div>
+        </div>
+
+        <!-- Players Section -->
+        <div class="players-section" id="players-section">
+            <h3>👥 Người chơi trong phòng</h3>
+            <div class="players-grid" id="players-grid">
+                <!-- Players will be populated here -->
+            </div>
+            
+            <div class="room-actions">
+                <button class="room-btn" id="ready-btn">Sẵn sàng</button>
+                <button class="room-btn" id="start-game-btn" style="display: none;">Bắt đầu game</button>
+                <button class="room-btn secondary" id="leave-room-btn">Rời phòng</button>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <div class="game-area" id="game-area">
+            <div class="game-board" id="game-board">
+                <div style="text-align: center; color: white; padding: 50px;">
+                    <h3 id="game-title">Game đang tải...</h3>
+                    <div class="cards-container" id="cards-container">
+                        <!-- Game cards will be rendered here -->
+                    </div>
+                    <div id="game-info" style="margin-top: 20px; font-size: 1.1rem;">
+                        Chờ game bắt đầu...
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <button class="game-btn primary" id="play-card-btn" disabled>Đánh bài</button>
+                <button class="game-btn" id="pass-turn-btn" disabled>Bỏ lượt</button>
+                <button class="game-btn secondary" id="show-rules-btn">Luật chơi</button>
+                <button class="game-btn secondary" id="pause-game-btn">Tạm dừng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Section -->
+    <div class="chat-section" id="chat-section">
+        <div class="chat-header">
+            <span>💬 Chat</span>
+            <button class="chat-toggle" id="chat-toggle">✕</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div style="color: #6c757d; font-style: italic; text-align: center; margin: 10px 0;">
+                Chào mừng đến với Cards Online! 🎉
+            </div>
+        </div>
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" id="chat-input" placeholder="Nhập tin nhắn..." maxlength="200">
+            <button class="chat-send" id="chat-send">Gửi</button>
+        </div>
+    </div>
+
+    <!-- Floating Chat Toggle -->
+    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <button id="chat-float-toggle" style="background: #2E8B57; color: white; border: none; padding: 15px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            💬
+        </button>
+    </div>
+
+    <!-- Modals would go here -->
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <!-- Load game scripts -->
+    <script type="module" src="../../js/config/firebase.js"></script>
+    <script type="module" src="cards.js"></script>
+</body>
+</html>

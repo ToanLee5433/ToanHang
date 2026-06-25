@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Tetris Menu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .test-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+        .test-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #6f42c1, #e83e8c);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .test-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+        .status {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>🧩 Test Tetris Menu</h1>
+    
+    <div class="test-container">
+        <h2>Kiểm tra Menu Tetris</h2>
+        <p>Click vào các link bên dưới để kiểm tra các trang Tetris:</p>
+        
+        <div class="status success">
+            ✅ Đã cập nhật link trong main menu để trỏ đến tetris-menu.html
+        </div>
+        
+        <div class="status success">
+            ✅ Đã xóa file tetris.html cũ và các file test không cần thiết
+        </div>
+        
+        <div class="status success">
+            ✅ Đã tạo lại tetris-game-logic.js đơn giản, không phụ thuộc Firebase
+        </div>
+        
+        <a href="http://127.0.0.1:3000/src/index.html" class="test-link" target="_blank">
+            🏠 Mở Game Hub chính
+        </a>
+        
+        <a href="http://127.0.0.1:3000/src/components/tetris/tetris-menu.html" class="test-link" target="_blank">
+            🎮 Mở Menu Tetris
+        </a>
+        
+        <a href="http://127.0.0.1:3000/src/components/tetris/tetris-single.html" class="test-link" target="_blank">
+            🎯 Mở Game Tetris Single Player
+        </a>
+        
+        <a href="http://127.0.0.1:3000/src/components/tetris/tetris-online.html" class="test-link" target="_blank">
+            🌐 Mở Game Tetris Online
+        </a>
+    </div>
+    
+    <div class="test-container">
+        <h2>Hướng dẫn kiểm tra:</h2>
+        <ol>
+            <li>Click vào "Mở Game Hub chính" và kiểm tra xem nút "Chơi ngay" của Tetris có hoạt động không</li>
+            <li>Click vào "Mở Menu Tetris" và kiểm tra xem menu có hiển thị đẹp không</li>
+            <li>Thử click vào các nút "Chơi Ngay" trong menu Tetris</li>
+            <li>Kiểm tra xem có lỗi nào trong Console của trình duyệt không</li>
+        </ol>
+    </div>
+    
+    <div class="test-container">
+        <h2>Những gì đã được sửa:</h2>
+        <ul>
+            <li>✅ Cập nhật link trong src/index.html từ tetris.html sang tetris-menu.html</li>
+            <li>✅ Xóa file tetris.html cũ không còn sử dụng</li>
+            <li>✅ Xóa các file test không cần thiết trong thư mục gốc</li>
+            <li>✅ Tạo lại tetris-game-logic.js đơn giản, không phụ thuộc Firebase</li>
+            <li>✅ Cập nhật HTML files để sử dụng type="module" cho script tags</li>
+            <li>✅ Xóa thư mục js cũ không còn sử dụng</li>
+            <li>✅ Thêm giao diện tìm phòng cho chế độ online</li>
+            <li>✅ Sửa lỗi game không hoạt động</li>
+        </ul>
+    </div>
+    
+    <div class="test-container">
+        <h2>Chức năng mới:</h2>
+        <ul>
+            <li>🎮 Game Tetris hoạt động hoàn toàn (không cần Firebase)</li>
+            <li>🔍 Chế độ online có giao diện tìm phòng</li>
+            <li>➕ Có thể tạo phòng mới</li>
+            <li>🚀 Có thể vào phòng bằng mã</li>
+            <li>📱 Giao diện responsive và đẹp mắt</li>
+            <li>🎯 Hệ thống tính điểm đúng như yêu cầu</li>
+        </ul>
+    </div>
+</body>
+</html>

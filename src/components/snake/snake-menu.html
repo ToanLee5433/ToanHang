@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐍 Snake Hunter - Game cho Hằng xinh gái ❤️</title>
+    <meta name="description" content="Snake Hunter - Game rắn săn mồi với power-ups độc đáo">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+            --accent-color: #4ecdc4;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --border-radius: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
+        }
+
+        .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 20%; animation-delay: 1s; }
+        .particle:nth-child(3) { left: 30%; animation-delay: 2s; }
+        .particle:nth-child(4) { left: 40%; animation-delay: 3s; }
+        .particle:nth-child(5) { left: 50%; animation-delay: 4s; }
+        .particle:nth-child(6) { left: 60%; animation-delay: 5s; }
+        .particle:nth-child(7) { left: 70%; animation-delay: 0s; }
+        .particle:nth-child(8) { left: 80%; animation-delay: 1s; }
+        .particle:nth-child(9) { left: 90%; animation-delay: 2s; }
+
+        /* Back button */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            padding: 12px 20px;
+            border-radius: 50px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            background: var(--secondary-gradient);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: var(--text-secondary);
+            font-weight: 300;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Content grid */
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Game modes */
+        .modes-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .mode-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .mode-card:hover::before {
+            left: 100%;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+            border-color: var(--accent-color);
+        }
+
+        .mode-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .mode-icon {
+            font-size: 2.5rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .mode-info h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .mode-info p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .mode-features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .mode-features li {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mode-features li::before {
+            content: '✨';
+            color: var(--accent-color);
+        }
+
+        .play-btn {
+            background: var(--secondary-gradient);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+        }
+
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Settings section */
+        .settings-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 30px;
+        }
+
+        .settings-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .settings-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .setting-group {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .setting-label {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .setting-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setting-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .setting-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .setting-option input[type="radio"] {
+            margin-right: 10px;
+            accent-color: var(--accent-color);
+            transform: scale(1.2);
+        }
+
+        .setting-option label {
+            color: var(--text-secondary);
+            cursor: pointer;
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        /* Stats section */
+        .stats-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .stats-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 1000px;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                margin-bottom: 30px;
+            }
+            
+            .mode-card {
+                padding: 20px;
+            }
+            
+            .settings-section,
+            .stats-section {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .back-btn {
+                top: 15px;
+                left: 15px;
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 8px;
+            }
+            
+            .mode-card {
+                padding: 15px;
+            }
+            
+            .mode-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .mode-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 2rem;
+            }
+            
+            .settings-section,
+            .stats-section {
+                padding: 15px;
+            }
+            
+            .setting-group {
+                padding: 15px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+        }
+
+        @media (max-height: 800px) {
+            .container {
+                justify-content: flex-start;
+                padding-top: 80px;
+            }
+            
+            .header {
+                margin-bottom: 20px;
+            }
+            
+            .description {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- Back button -->
+    <a href="../../index.html" class="back-btn">
+        <span>←</span>
+        <span>Về Game Hub</span>
+    </a>
+
+    <!-- Main container -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">🐍 SNAKE HUNTER 🐍</h1>
+            <p class="subtitle">Game cho Hằng xinh gái ❤️</p>
+            <p class="description">
+                Khám phá thế giới rắn săn mồi với power-ups độc đáo, chướng ngại vật thách thức và giao diện đẹp mắt!
+            </p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Game Modes -->
+            <div class="modes-section">
+                <div class="mode-card" onclick="startGame('classic')">
+                    <div class="mode-header">
+                        <div class="mode-icon">🎮</div>
+                        <div class="mode-info">
+                            <h3>Chế độ Cổ điển</h3>
+                            <p>Chế độ chơi truyền thống với các tính năng mới</p>
+                        </div>
+                    </div>
+                    <ul class="mode-features">
+                        <li>Power-ups đa dạng</li>
+                        <li>Chướng ngại vật thông minh</li>
+                        <li>Hiệu ứng âm thanh</li>
+                        <li>Hệ thống điểm phức tạp</li>
+                    </ul>
+                    <button class="play-btn">🎮 Bắt đầu chơi</button>
+                </div>
+
+                <div class="mode-card" onclick="startGame('challenge')">
+                    <div class="mode-header">
+                        <div class="mode-icon">🏆</div>
+                        <div class="mode-info">
+                            <h3>Chế độ Thử thách</h3>
+                            <p>Chế độ chơi khó với nhiều thử thách</p>
+                        </div>
+                    </div>
+                    <ul class="mode-features">
+                        <li>Chướng ngại vật nhiều hơn</li>
+                        <li>Tốc độ tăng nhanh</li>
+                        <li>Điểm thưởng gấp đôi</li>
+                        <li>Thành tích đặc biệt</li>
+                    </ul>
+                    <button class="play-btn">🏆 Thử thách</button>
+                </div>
+
+                <div class="mode-card" onclick="startGame('relax')">
+                    <div class="mode-header">
+                        <div class="mode-icon">🌸</div>
+                        <div class="mode-info">
+                            <h3>Chế độ Thư giãn</h3>
+                            <p>Chế độ chơi nhẹ nhàng để thư giãn</p>
+                        </div>
+                    </div>
+                    <ul class="mode-features">
+                        <li>Tốc độ chậm hơn</li>
+                        <li>Ít chướng ngại vật</li>
+                        <li>Power-ups thường xuyên</li>
+                        <li>Giao diện đẹp mắt</li>
+                    </ul>
+                    <button class="play-btn">🌸 Thư giãn</button>
+                </div>
+            </div>
+
+            <!-- Settings & Stats -->
+            <div>
+                <!-- Settings -->
+                <div class="settings-section">
+                    <h2 class="settings-title">⚙️ Thiết lập Game</h2>
+                    <div class="settings-grid">
+                        <div class="setting-group">
+                            <label class="setting-label">🎯 Kích thước bàn chơi</label>
+                            <div class="setting-options">
+                                <div class="setting-option">
+                                    <input type="radio" id="board-small" name="boardSize" value="small">
+                                    <label for="board-small">Nhỏ (15x15)</label>
+                                </div>
+                                <div class="setting-option">
+                                    <input type="radio" id="board-normal" name="boardSize" value="normal" checked>
+                                    <label for="board-normal">Bình thường (20x20)</label>
+                                </div>
+                                <div class="setting-option">
+                                    <input type="radio" id="board-large" name="boardSize" value="large">
+                                    <label for="board-large">Lớn (25x25)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <label class="setting-label">⚡ Tốc độ game</label>
+                            <div class="setting-options">
+                                <div class="setting-option">
+                                    <input type="radio" id="speed-slow" name="speed" value="slow">
+                                    <label for="speed-slow">Chậm</label>
+                                </div>
+                                <div class="setting-option">
+                                    <input type="radio" id="speed-normal" name="speed" value="normal" checked>
+                                    <label for="speed-normal">Bình thường</label>
+                                </div>
+                                <div class="setting-option">
+                                    <input type="radio" id="speed-fast" name="speed" value="fast">
+                                    <label for="speed-fast">Nhanh</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <label class="setting-label">🎵 Âm thanh</label>
+                            <div class="setting-options">
+                                <div class="setting-option">
+                                    <input type="radio" id="sound-on" name="sound" value="on" checked>
+                                    <label for="sound-on">Bật</label>
+                                </div>
+                                <div class="setting-option">
+                                    <input type="radio" id="sound-off" name="sound" value="off">
+                                    <label for="sound-off">Tắt</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <label class="setting-label">🎨 Hiệu ứng</label>
+                            <div class="setting-options">
+                                <div class="setting-option">
+                                    <input type="radio" id="effects-on" name="effects" value="on" checked>
+                                    <label for="effects-on">Bật</label>
+                                </div>
+                                <div class="setting-option">
+                                    <input type="radio" id="effects-off" name="effects" value="off">
+                                    <label for="effects-off">Tắt</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-section">
+                    <h2 class="stats-title">📊 Thống kê</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🏆</div>
+                            <div class="stat-value" id="high-score">0</div>
+                            <div class="stat-label">Điểm cao nhất</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🎮</div>
+                            <div class="stat-value" id="games-played">0</div>
+                            <div class="stat-label">Lần chơi</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⏱️</div>
+                            <div class="stat-value" id="total-time">00:00</div>
+                            <div class="stat-label">Tổng thời gian</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🍎</div>
+                            <div class="stat-value" id="foods-eaten">0</div>
+                            <div class="stat-label">Thức ăn đã ăn</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load settings and stats
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('snake-settings') || '{}');
+            
+            // Apply saved settings
+            if (settings.boardSize) {
+                document.querySelector(`input[name="boardSize"][value="${settings.boardSize}"]`).checked = true;
+            }
+            if (settings.speed) {
+                document.querySelector(`input[name="speed"][value="${settings.speed}"]`).checked = true;
+            }
+            if (settings.sound !== undefined) {
+                document.querySelector(`input[name="sound"][value="${settings.sound}"]`).checked = true;
+            }
+            if (settings.effects !== undefined) {
+                document.querySelector(`input[name="effects"][value="${settings.effects}"]`).checked = true;
+            }
+        }
+
+        function loadStats() {
+            const stats = JSON.parse(localStorage.getItem('snake-stats') || '{}');
+            
+            document.getElementById('high-score').textContent = stats.highScore || 0;
+            document.getElementById('games-played').textContent = stats.gamesPlayed || 0;
+            document.getElementById('total-time').textContent = formatTime(stats.totalTime || 0);
+            document.getElementById('foods-eaten').textContent = stats.foodsEaten || 0;
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        function saveSettings() {
+            const settings = {
+                boardSize: document.querySelector('input[name="boardSize"]:checked').value,
+                speed: document.querySelector('input[name="speed"]:checked').value,
+                sound: document.querySelector('input[name="sound"]:checked').value,
+                effects: document.querySelector('input[name="effects"]:checked').value
+            };
+            
+            localStorage.setItem('snake-settings', JSON.stringify(settings));
+        }
+
+        function startGame(mode) {
+            // Save current settings
+            saveSettings();
+            
+            // Add mode to settings
+            const settings = JSON.parse(localStorage.getItem('snake-settings') || '{}');
+            settings.gameMode = mode;
+            localStorage.setItem('snake-settings', JSON.stringify(settings));
+            
+            // Navigate to game
+            window.location.href = 'snake.html';
+        }
+
+        // Save settings when changed
+        document.querySelectorAll('input[type="radio"]').forEach(input => {
+            input.addEventListener('change', saveSettings);
+        });
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            loadStats();
+        });
+    </script>
+</body>
+</html>
