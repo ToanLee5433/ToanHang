@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Hub - Game cho Hằng xinh gái ❤️</title>
+    <meta name="description" content="Bộ sưu tập game dành tặng Hằng xinh gái. Chơi Tetris, Snake, và nhiều game thú vị khác.">
+    <meta name="keywords" content="game, tetris, snake, puzzle, vietnam, hằng">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/main.css?v=1.0.3">
+    
+    <!-- Firebase -->
+    <script type="module" src="js/config/firebase.js"></script>
+    
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body class="game-hub-page">
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="tetris-logo">
+                <span class="logo-text">GAME HUB</span>
+                <span class="logo-subtitle">CHO HẰNG XINH GÁI ❤️</span>
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <div class="loading-text">Đang tải...</div>
+        </div>
+    </div>
+
+    <!-- Main Game Hub -->
+    <div id="main-hub" class="screen active">
+        <div class="hub-container">
+            <div class="hub-header">
+                <h1 class="hub-title">🎮 Game Hub 🎮</h1>
+                <p class="hub-subtitle">Game cho Hằng xinh gái ❤️</p>
+                <div class="heart-animation">💖</div>
+            </div>
+            
+            <div class="game-grid">
+                <div class="game-card" data-game="tetris">
+                    <div class="game-icon">🧩</div>
+                    <h3 class="game-name">Tetris</h3>
+                    <p class="game-description">Xếp khối gỗ cổ điển</p>
+                    <div class="game-features">
+                        <span class="feature">🎯 Chơi đơn</span>
+                        <span class="feature">🌐 Chơi đôi</span>
+                        <span class="feature">🏆 Leaderboard</span>
+                    </div>
+                    <a href="components/tetris/tetris-menu.html" class="play-btn">Chơi ngay</a>
+                </div>
+                
+                <div class="game-card" data-game="snake">
+                    <div class="game-icon">🐍</div>
+                    <h3 class="game-name">Snake Hunter</h3>
+                    <p class="game-description">Rắn săn mồi nâng cao</p>
+                    <div class="game-features">
+                        <span class="feature">🎯 Chơi đơn</span>
+                        <span class="feature">⚡ Power-ups</span>
+                        <span class="feature">🏆 Leaderboard</span>
+                    </div>
+                    <a href="components/snake/snake-menu.html" class="play-btn">Chơi ngay</a>
+                </div>
+                
+                <div class="game-card" data-game="puzzle">
+                    <div class="game-icon">🪵</div>
+                    <h3 class="game-name">Wood Block Puzzle</h3>
+                    <p class="game-description">Xếp khối gỗ thư giãn</p>
+                    <div class="game-features">
+                        <span class="feature">🎯 Chơi đơn</span>
+                        <span class="feature">🧩 Kéo thả</span>
+                        <span class="feature">🏆 Leaderboard</span>
+                    </div>
+                    <a href="components/puzzle/puzzle-menu.html" class="play-btn">Chơi ngay</a>
+                </div>
+                
+                <div class="game-card" data-game="memory">
+                    <div class="game-icon">🧠</div>
+                    <h3 class="game-name">Memory Game</h3>
+                    <p class="game-description">Trò chơi trí nhớ lật thẻ</p>
+                    <div class="game-features">
+                        <span class="feature">🎯 Chơi đơn</span>
+                        <span class="feature">🌐 Online 2P</span>
+                        <span class="feature">📊 3 cấp độ</span>
+                    </div>
+                    <a href="components/memory/memory.html" class="play-btn">Chơi ngay</a>
+                </div>
+                
+                <div class="game-card" data-game="caro">
+                    <div class="game-icon">⭕</div>
+                    <h3 class="game-name">Caro Online</h3>
+                    <p class="game-description">Cờ caro 2 người chơi</p>
+                    <div class="game-features">
+                        <span class="feature">🌐 Online</span>
+                        <span class="feature">💬 Chat</span>
+                        <span class="feature">🎯 Thời gian thực</span>
+                    </div>
+                    <a href="components/caro/caro.html" class="play-btn">Chơi ngay</a>
+                </div>
+                
+                <div class="game-card" data-game="cards">
+                    <div class="game-icon">🃏</div>
+                    <h3 class="game-name">Cards Online</h3>
+                    <p class="game-description">Tập hợp game bài Việt Nam</p>
+                    <div class="game-features">
+                        <span class="feature">🚀 Tiến lên</span>
+                        <span class="feature">♠️ Poker</span>
+                        <span class="feature">🎯 6 game bài</span>
+                    </div>
+                    <a href="components/cards/cards.html" class="play-btn">Chơi ngay</a>
+                </div>
+            </div>
+            
+            <div class="hub-footer">
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-number">6</span>
+                        <span class="stat-label">Game</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">∞</span>
+                        <span class="stat-label">Niềm vui</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">❤️</span>
+                        <span class="stat-label">Tình yêu</span>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <button id="settings-btn" class="footer-btn">⚙️ Cài đặt</button>
+                    <button id="leaderboard-btn" class="footer-btn">🏆 Bảng xếp hạng</button>
+                    <button id="about-btn" class="footer-btn">ℹ️ Giới thiệu</button>
+                    <button id="profile-btn" class="footer-btn hidden">👤 Hồ sơ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Settings -->
+    <div id="settings" class="screen">
+        <div class="settings-container">
+            <div class="settings-header">
+                <h2>⚙️ Cài Đặt</h2>
+                <button id="settings-back-btn" class="back-btn">← Về Game Hub</button>
+            </div>
+            
+            <div class="settings-content">
+                <div class="setting-group">
+                    <h3>🎵 Âm thanh</h3>
+                    <div class="setting-item">
+                        <label>Âm nhạc nền</label>
+                        <input type="range" id="music-volume" min="0" max="100" value="50">
+                    </div>
+                    <div class="setting-item">
+                        <label>Hiệu ứng âm thanh</label>
+                        <input type="range" id="sfx-volume" min="0" max="100" value="70">
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>🎮 Điều khiển</h3>
+                    <div class="setting-item">
+                        <label>Tốc độ game</label>
+                        <select id="game-speed">
+                            <option value="slow">Chậm</option>
+                            <option value="normal" selected>Bình thường</option>
+                            <option value="fast">Nhanh</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div id="leaderboard" class="screen">
+        <div class="leaderboard-container">
+            <div class="leaderboard-header">
+                <h2>🏆 Bảng Xếp Hạng</h2>
+                <button id="leaderboard-back-btn" class="back-btn">← Về Game Hub</button>
+            </div>
+            
+            <div class="leaderboard-tabs">
+                <button class="leaderboard-tab active" data-game="tetris">Tetris</button>
+                <button class="leaderboard-tab" data-game="snake">Snake</button>
+                <button class="leaderboard-tab" data-game="puzzle">Puzzle</button>
+            </div>
+            
+            <div class="leaderboard-content">
+                <div class="leaderboard-list">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About -->
+    <div id="about" class="screen">
+        <div class="about-container">
+            <div class="about-header">
+                <h2>ℹ️ Giới Thiệu</h2>
+                <button id="about-back-btn" class="back-btn">← Về Game Hub</button>
+            </div>
+            
+            <div class="about-content">
+                <div class="about-section">
+                    <h3>🎮 Game Hub</h3>
+                    <p>Bộ sưu tập game được tạo ra đặc biệt cho Hằng xinh gái ❤️</p>
+                    <p>Mỗi game đều được thiết kế với tình yêu và sự quan tâm đặc biệt.</p>
+                </div>
+                
+                <div class="about-section">
+                    <h3>🎯 Tính năng</h3>
+                    <ul>
+                        <li>🎮 Nhiều game thú vị</li>
+                        <li>🏆 Bảng xếp hạng</li>
+                        <li>⚙️ Tùy chỉnh cài đặt</li>
+                        <li>💾 Lưu tiến độ</li>
+                        <li>❤️ Giao diện đẹp mắt</li>
+                    </ul>
+                </div>
+                
+                <div class="about-section">
+                    <h3>💝 Tình yêu</h3>
+                    <p>Được tạo ra với tất cả tình yêu dành cho Hằng ❤️</p>
+                    <p>Mong rằng những game này sẽ mang lại niềm vui và tiếng cười!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Screen -->
+    <div id="profile" class="screen">
+        <div class="profile-container">
+            <div class="profile-header">
+                <h2>👤 Hồ Sơ Của Hằng</h2>
+                <button id="profile-back-btn" class="back-btn">← Về Game Hub</button>
+            </div>
+            
+            <div class="profile-content">
+                <!-- User Profile Summary Card -->
+                <div class="profile-summary-card">
+                    <div class="profile-avatar-container">
+                        <img id="profile-avatar" src="assets/images/default-avatar.png" alt="Avatar">
+                    </div>
+                    <h3 id="profile-display-name">Hằng xinh gái</h3>
+                    <p id="profile-email" class="profile-email-text"></p>
+                </div>
+
+                <!-- Global Stats Card -->
+                <div class="profile-card stats-card">
+                    <h3>📊 Thống Kê Tổng Quan</h3>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <span class="stat-num" id="total-games">0</span>
+                            <span class="stat-lbl">Số trận chơi</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-num" id="total-score">0</span>
+                            <span class="stat-lbl">Tổng điểm số</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-num" id="achievements">0</span>
+                            <span class="stat-lbl">Thành tựu đạt được</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Game Specific Stats -->
+                <div class="profile-card game-stats-card">
+                    <h3>🎮 Thống Kê Từng Game</h3>
+                    <div class="game-stats-list" id="game-stats">
+                        <!-- Will be populated by JS -->
+                    </div>
+                </div>
+                
+                <!-- Achievements list -->
+                <div class="profile-card achievements-card">
+                    <h3>🏆 Danh Sách Thành Tựu</h3>
+                    <div class="achievements-list-container" id="achievements-list">
+                        <!-- Will be populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="pause-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>⏸️ Tạm Dừng</h2>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="resume-btn">Tiếp tục</button>
+                <button class="modal-btn secondary" id="restart-btn">Chơi lại</button>
+                <button class="modal-btn tertiary" id="quit-btn">Thoát</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-over-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>🎮 Game Over</h2>
+            <div class="final-stats">
+                <p>Điểm: <span id="final-score">0</span></p>
+                <p>Cấp: <span id="final-level">1</span></p>
+                <p>Hàng: <span id="final-lines">0</span></p>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="play-again-btn">Chơi lại</button>
+                <button class="modal-btn secondary" id="back-to-menu-btn">Về Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

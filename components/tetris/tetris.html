@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris - Game cho Hằng xinh gái ❤️</title>
+    <meta name="description" content="Chơi Tetris online. Xếp khối gỗ cổ điển với giao diện đẹp mắt.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../../css/main.css?v=1.0.3">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        /* Responsive Tetris styles */
+        body {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            min-height: 100vh;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+        
+        .tetris-header {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 1rem 0;
+        }
+        
+        .tetris-title {
+            font-family: "Press Start 2P", monospace;
+            font-size: clamp(1.2rem, 4vw, 2.5rem);
+            color: #6f42c1;
+            margin-bottom: 0.5rem;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+            background: linear-gradient(45deg, #6f42c1, #e83e8c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .tetris-subtitle {
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .back-to-hub {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #e83e8c;
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: #495057;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: clamp(0.8rem, 2vw, 1rem);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .back-to-hub:hover {
+            background: #e83e8c;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(232, 62, 140, 0.3);
+        }
+        
+        /* Responsive game container */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .game-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .game-info div {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 2px solid !important;
+            font-weight: 700 !important;
+            color: #495057 !important;
+            text-shadow: none !important;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            min-width: fit-content;
+        }
+        
+        .score { 
+            color: #28a745 !important; 
+            border-color: #28a745 !important;
+        }
+        .level { 
+            color: #fd7e14 !important; 
+            border-color: #fd7e14 !important;
+        }
+        .lines { 
+            color: #007bff !important; 
+            border-color: #007bff !important;
+        }
+        .time { 
+            color: #dc3545 !important; 
+            border-color: #dc3545 !important;
+        }
+        
+        .game-btn {
+            background: #6f42c1;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .game-btn:hover {
+            background: #5a2d91;
+            transform: scale(1.05);
+        }
+        
+        /* Responsive game board layout */
+        .game-content {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        .game-board {
+            flex-shrink: 0;
+        }
+        
+        #game-canvas {
+            border: 3px solid #6f42c1;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(111, 66, 193, 0.3);
+            background: #f8f9fa;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .game-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 150px;
+        }
+        
+        .game-sidebar h3 {
+            color: #495057 !important;
+            font-weight: 600 !important;
+            margin: 0 0 10px 0 !important;
+            font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+        }
+        
+        .next-piece, .hold-piece, .controls {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 2px solid #e83e8c !important;
+            border-radius: 12px !important;
+            padding: 12px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+        }
+        
+        #next-canvas, #hold-canvas {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            width: 100%;
+            max-width: 120px;
+            height: auto;
+        }
+        
+        .control-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            padding: 6px;
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 6px;
+        }
+        
+        .key {
+            background: #6f42c1;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: clamp(0.7rem, 1.2vw, 0.8rem);
+        }
+        
+        .action {
+            color: #495057;
+            font-weight: 500;
+            font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+        }
+        
+        /* Modal responsive styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal.hidden {
+            display: none;
+        }
+        
+        .modal-content {
+            background: rgba(255, 255, 255, 0.98) !important;
+            border: 3px solid #e83e8c !important;
+            color: #495057 !important;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .modal-content h2 {
+            color: #6f42c1 !important;
+            margin-bottom: 20px;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+        }
+        
+        .final-stats {
+            margin: 20px 0;
+        }
+        
+        .final-stats p {
+            color: #495057 !important;
+            font-weight: 500 !important;
+            margin: 8px 0;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+        
+        .final-stats span {
+            color: #e83e8c !important;
+            font-weight: 700 !important;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+        
+        .modal-btn.primary {
+            background: #28a745;
+            color: white;
+        }
+        
+        .modal-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .modal-btn.tertiary {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        /* Mobile specific styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            
+            .game-container {
+                padding: 10px;
+            }
+            
+            .game-content {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-sidebar {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .next-piece, .hold-piece, .controls {
+                flex: 1;
+                min-width: 140px;
+            }
+            
+            .controls {
+                flex-basis: 100%;
+            }
+            
+            #game-canvas {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .back-to-hub {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 10px;
+                display: inline-block;
+            }
+            
+            .tetris-header {
+                margin-top: 10px;
+            }
+            
+            .game-info {
+                justify-content: center;
+            }
+            
+            .game-info div {
+                flex: 1;
+                text-align: center;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back to Hub Button -->
+    <a href="../../index.html" class="back-to-hub">← Về Game Hub</a>
+
+    <!-- Tetris Header -->
+    <div class="tetris-header">
+        <h1 class="tetris-title">🧩 TETRIS 🧩</h1>
+        <p class="tetris-subtitle">Game cho Hằng xinh gái ❤️</p>
+    </div>
+
+    <!-- Tetris Game -->
+    <div class="game-container">
+        <div class="game-header">
+            <div class="game-info">
+                <div class="score">Điểm: <span id="score">0</span></div>
+                <div class="level">Cấp: <span id="level">1</span></div>
+                <div class="lines">Hàng: <span id="lines">0</span></div>
+                <div class="time">Thời gian: <span id="time">00:00</span></div>
+            </div>
+            <button id="pause-btn" class="game-btn">⏸️</button>
+        </div>
+        
+        <div class="game-content">
+            <div class="game-board">
+                <canvas id="game-canvas" width="300" height="600"></canvas>
+            </div>
+            
+            <div class="game-sidebar">
+                <div class="next-piece">
+                    <h3>Tiếp theo</h3>
+                    <canvas id="next-canvas" width="120" height="120"></canvas>
+                </div>
+                
+                <div class="hold-piece">
+                    <h3>Giữ</h3>
+                    <canvas id="hold-canvas" width="120" height="120"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <h3>Điều khiển</h3>
+                    <div class="control-list">
+                        <div class="control-item">
+                            <span class="key">←→</span>
+                            <span class="action">Di chuyển</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="key">↓</span>
+                            <span class="action">Rơi nhanh</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="key">Space</span>
+                            <span class="action">Xoay</span>
+                        </div>
+                        <div class="control-item">
+                            <span class="key">C</span>
+                            <span class="action">Giữ khối</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="pause-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>⏸️ Tạm Dừng</h2>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="resume-btn">Tiếp tục</button>
+                <button class="modal-btn secondary" id="restart-btn">Chơi lại</button>
+                <button class="modal-btn tertiary" id="quit-btn">Thoát</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-over-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>🎮 Game Over</h2>
+            <div class="final-stats">
+                <p>Điểm: <span id="final-score">0</span></p>
+                <p>Cấp: <span id="final-level">1</span></p>
+                <p>Hàng: <span id="final-lines">0</span></p>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="play-again-btn">Chơi lại</button>
+                <button class="modal-btn secondary" id="back-to-hub-btn">Về Game Hub</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Scripts -->
+    <script>
+        // Basic game initialization to prevent white screen
+        console.log('Loading Tetris game...');
+        
+        // Ensure DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing game...');
+            
+            // Initialize canvas
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            if (!ctx) {
+                console.error('Canvas context not available');
+                return;
+            }
+            
+            // Set up responsive canvas
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                const maxWidth = Math.min(300, container.offsetWidth - 20);
+                const scale = maxWidth / 300;
+                
+                canvas.style.width = maxWidth + 'px';
+                canvas.style.height = (600 * scale) + 'px';
+            }
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Draw initial game board
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 1;
+            
+            const gridSize = 30;
+            for (let x = 0; x <= canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            for (let y = 0; y <= canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Draw welcome message
+            ctx.fillStyle = '#6f42c1';
+            ctx.font = 'bold 20px Roboto';
+            ctx.textAlign = 'center';
+            ctx.fillText('TETRIS', canvas.width / 2, canvas.height / 2 - 20);
+            ctx.font = '16px Roboto';
+            ctx.fillText('Nhấn Space để bắt đầu', canvas.width / 2, canvas.height / 2 + 10);
+            
+            console.log('Basic game interface loaded successfully');
+        });
+        
+        // Basic event handlers
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                console.log('Game start requested');
+                // Game start logic will be handled by tetris.js
+            }
+        });
+    </script>
+    
+    <!-- Load simple tetris game -->
+    <script src="tetris.js"></script>
+</body>
+</html>
+

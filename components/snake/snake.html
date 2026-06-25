@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐍 Snake Hunter - Game cho Hằng xinh gái ❤️</title>
+    <meta name="description" content="Snake Hunter - Game rắn săn mồi với cách chơi độc đáo và giao diện đẹp mắt">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../../css/main.css?v=1.0.3">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Roboto', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Floating particles animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 20%; animation-delay: 1s; }
+        .particle:nth-child(3) { left: 30%; animation-delay: 2s; }
+        .particle:nth-child(4) { left: 40%; animation-delay: 3s; }
+        .particle:nth-child(5) { left: 50%; animation-delay: 4s; }
+        .particle:nth-child(6) { left: 60%; animation-delay: 5s; }
+        .particle:nth-child(7) { left: 70%; animation-delay: 0s; }
+        .particle:nth-child(8) { left: 80%; animation-delay: 1s; }
+        .particle:nth-child(9) { left: 90%; animation-delay: 2s; }
+
+        /* Header */
+        .snake-header {
+            text-align: center;
+            padding: 2rem 0;
+            position: relative;
+        }
+
+        .snake-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .snake-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        /* Back button */
+        .back-to-hub {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 20px;
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-size: 0.9rem;
+        }
+
+        .back-to-hub:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Game container */
+        .snake-game-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            gap: 1.5rem;
+        }
+
+        /* Game board */
+        .snake-board-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #snake-canvas {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Sidebar */
+        .snake-sidebar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Stats */
+        .snake-stats {
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #4ecdc4;
+            font-size: 1.5rem;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        }
+
+        /* Power-ups */
+        .power-ups {
+            margin-bottom: 2rem;
+        }
+
+        .power-up-title {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .power-up-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .power-up-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .power-up-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .power-up-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .power-up-name {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .power-up-count {
+            font-size: 0.8rem;
+            color: #4ecdc4;
+            font-weight: 700;
+        }
+
+        /* Controls */
+        .controls {
+            margin-bottom: 2rem;
+        }
+
+        .controls h3 {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .control-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .key {
+            display: block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .action {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Buttons */
+        .game-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .game-btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            padding: 1rem;
+            border-radius: 15px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-btn.secondary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h2 {
+            color: white;
+            font-family: 'Orbitron', monospace;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .final-stats {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .final-stats p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .final-stats span {
+            color: #4ecdc4;
+            font-weight: 700;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .modal-btn {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            padding: 1rem;
+            border-radius: 15px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-btn.secondary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .modal-btn.tertiary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+        }
+
+        /* Responsive & Desktop Layout */
+        @media (min-width: 1025px) {
+            .snake-game-container {
+                flex-direction: row;
+                justify-content: center;
+                align-items: flex-start;
+                gap: 2.5rem;
+                padding: 0 2rem;
+            }
+
+            .snake-board-container {
+                flex: 1;
+                max-width: 600px;
+            }
+
+            #snake-canvas {
+                width: 600px;
+                height: 600px;
+            }
+
+            .snake-sidebar {
+                width: 400px;
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+                grid-template-columns: none;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .snake-game-container {
+                padding: 0 0.5rem;
+            }
+            
+            .snake-title {
+                font-size: 2.8rem;
+            }
+            
+            #snake-canvas {
+                width: 100%;
+                max-width: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+            
+            .snake-header {
+                padding: 1rem 0;
+            }
+            
+            .snake-title {
+                font-size: 2.2rem;
+            }
+            
+            .snake-subtitle {
+                font-size: 1rem;
+            }
+            
+            .back-to-hub {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 1rem;
+                display: inline-block;
+            }
+            
+            #snake-canvas {
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .snake-sidebar {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+            
+            .stat-card, .power-up-item, .control-item {
+                padding: 0.75rem;
+            }
+            
+            .power-up-grid, .control-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .snake-title {
+                font-size: 1.8rem;
+            }
+            
+            .snake-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            #snake-canvas {
+                max-width: 300px;
+            }
+            
+            .snake-sidebar {
+                padding: 0.75rem;
+                gap: 1rem;
+            }
+            
+            .power-up-grid, .control-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-buttons {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .modal-content {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles -->
+    <div class="floating-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- Back to Hub Button -->
+    <a href="../../index.html" class="back-to-hub">← Về Game Hub</a>
+
+    <!-- Snake Header -->
+    <div class="snake-header">
+        <h1 class="snake-title">🐍 SNAKE HUNTER 🐍</h1>
+        <p class="snake-subtitle">Game cho Hằng xinh gái ❤️</p>
+    </div>
+
+    <!-- Snake Game -->
+    <div class="snake-game-container">
+        <div class="snake-board-container">
+            <canvas id="snake-canvas" width="600" height="600"></canvas>
+        </div>
+        
+        <div class="snake-sidebar">
+            <div class="snake-stats">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">⭐</span>
+                        <span class="stat-label">Điểm</span>
+                    </div>
+                    <div class="stat-value" id="snake-score">0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">🚀</span>
+                        <span class="stat-label">Cấp độ</span>
+                    </div>
+                    <div class="stat-value" id="snake-level">1</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">⏱️</span>
+                        <span class="stat-label">Thời gian</span>
+                    </div>
+                    <div class="stat-value" id="snake-time">00:00</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">📏</span>
+                        <span class="stat-label">Độ dài</span>
+                    </div>
+                    <div class="stat-value" id="snake-length">1</div>
+                </div>
+            </div>
+            
+            <div class="power-ups">
+                <div class="power-up-title">💪 Sức mạnh</div>
+                <div class="power-up-grid">
+                    <div class="power-up-item">
+                        <div class="power-up-icon">⚡</div>
+                        <div class="power-up-name">Tăng tốc</div>
+                        <div class="power-up-count" id="speed-count">0</div>
+                    </div>
+                    <div class="power-up-item">
+                        <div class="power-up-icon">🛡️</div>
+                        <div class="power-up-name">Bảo vệ</div>
+                        <div class="power-up-count" id="shield-count">0</div>
+                    </div>
+                    <div class="power-up-item">
+                        <div class="power-up-icon">💎</div>
+                        <div class="power-up-name">Điểm x2</div>
+                        <div class="power-up-count" id="double-count">0</div>
+                    </div>
+                    <div class="power-up-item">
+                        <div class="power-up-icon">🎯</div>
+                        <div class="power-up-name">Từ trường</div>
+                        <div class="power-up-count" id="magnet-count">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <h3>🎮 Điều khiển</h3>
+                <div class="control-grid">
+                    <div class="control-item">
+                        <span class="key">↑↓←→</span>
+                        <span class="action">Di chuyển</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">Space</span>
+                        <span class="action">Tạm dừng</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">R</span>
+                        <span class="action">Chơi lại</span>
+                    </div>
+                    <div class="control-item">
+                        <span class="key">1-4</span>
+                        <span class="action">Dùng sức mạnh</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-buttons">
+                <button id="pause-btn" class="game-btn">⏸️ Tạm dừng</button>
+                <button id="restart-btn" class="game-btn secondary">🔄 Chơi lại</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="pause-modal" class="modal">
+        <div class="modal-content">
+            <h2>⏸️ Tạm Dừng</h2>
+            <div class="modal-buttons">
+                <button class="modal-btn" id="resume-btn">▶️ Tiếp tục</button>
+                <button class="modal-btn secondary" id="restart-modal-btn">🔄 Chơi lại</button>
+                <button class="modal-btn tertiary" id="quit-btn">🚪 Thoát</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content">
+            <h2>🎮 Game Over</h2>
+            <div class="final-stats">
+                <p>Điểm: <span id="final-score">0</span></p>
+                <p>Cấp: <span id="final-level">1</span></p>
+                <p>Độ dài: <span id="final-length">1</span></p>
+                <p>Thời gian: <span id="final-time">00:00</span></p>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn" id="play-again-btn">🎮 Chơi lại</button>
+                <button class="modal-btn secondary" id="back-to-hub-btn">🏠 Về Game Hub</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Basic Snake game initialization to prevent white screen
+        console.log('Loading Snake Hunter game...');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing Snake game...');
+            
+            // Initialize canvas
+            const canvas = document.getElementById('snake-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            if (!ctx) {
+                console.error('Canvas context not available');
+                return;
+            }
+            
+            // Set up responsive canvas
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                const maxSize = Math.min(600, container.offsetWidth - 40, window.innerHeight - 300);
+                
+                canvas.style.width = maxSize + 'px';
+                canvas.style.height = maxSize + 'px';
+                
+                // Mobile adjustments
+                if (window.innerWidth <= 480) {
+                    const mobileSize = Math.min(300, window.innerWidth - 40);
+                    canvas.style.width = mobileSize + 'px';
+                    canvas.style.height = mobileSize + 'px';
+                }
+            }
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Draw initial game board
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            const gridSize = 20;
+            for (let x = 0; x <= canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            for (let y = 0; y <= canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Draw welcome message
+            ctx.fillStyle = '#4ecdc4';
+            ctx.font = 'bold 24px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.fillText('🐍 SNAKE HUNTER 🐍', canvas.width / 2, canvas.height / 2 - 30);
+            ctx.font = '16px Roboto';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fillText('Sử dụng phím mũi tên để điều khiển', canvas.width / 2, canvas.height / 2 + 10);
+            ctx.fillText('Nhấn Space để bắt đầu', canvas.width / 2, canvas.height / 2 + 35);
+            
+            // Initialize stats
+            document.getElementById('snake-score').textContent = '0';
+            document.getElementById('snake-level').textContent = '1';
+            document.getElementById('snake-time').textContent = '00:00';
+            document.getElementById('snake-length').textContent = '1';
+            
+            // Initialize power-up counts
+            document.getElementById('speed-count').textContent = '0';
+            document.getElementById('shield-count').textContent = '0';
+            document.getElementById('double-count').textContent = '0';
+            document.getElementById('magnet-count').textContent = '0';
+            
+            console.log('Basic Snake interface loaded successfully');
+        });
+        
+        // Basic event handlers
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                console.log('Game start requested');
+                // Game start logic will be handled by snake.js
+            }
+        });
+        
+        // Modal handlers
+        document.getElementById('pause-btn')?.addEventListener('click', function() {
+            document.getElementById('pause-modal').classList.add('show');
+        });
+        
+        document.getElementById('resume-btn')?.addEventListener('click', function() {
+            document.getElementById('pause-modal').classList.remove('show');
+        });
+        
+        document.getElementById('restart-btn')?.addEventListener('click', function() {
+            console.log('Restart requested');
+        });
+        
+        document.getElementById('quit-btn')?.addEventListener('click', function() {
+            window.location.href = '../../index.html';
+        });
+        
+        document.getElementById('back-to-hub-btn')?.addEventListener('click', function() {
+            window.location.href = '../../index.html';
+        });
+    </script>
+    
+    <!-- Load simple snake game -->
+    <script src="snake.js"></script>
+</body>
+</html>
+

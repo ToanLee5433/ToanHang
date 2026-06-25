@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🪵 Wood Block Puzzle - Game cho Hằng xinh gái ❤️</title>
+    <meta name="description" content="Wood Block Puzzle - Trò chơi xếp khối gỗ thư giãn">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --wood-primary: #8B4513;
+            --wood-secondary: #A0522D;
+            --wood-light: #DEB887;
+            --wood-dark: #654321;
+            --board-bg: #F5DEB3;
+            --grid-line: rgba(139, 69, 19, 0.3);
+            --text-primary: #2F1B14;
+            --text-secondary: #5D4037;
+            --accent-color: #D2691E;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #DEB887 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Wood texture background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(139, 69, 19, 0.1) 10px,
+                    rgba(139, 69, 19, 0.1) 20px
+                );
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Back button */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(139, 69, 19, 0.9);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--wood-light);
+            padding: 12px 20px;
+            border-radius: 50px;
+            color: var(--wood-light);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            box-shadow: var(--shadow);
+        }
+
+        .back-btn:hover {
+            background: rgba(160, 82, 45, 0.9);
+            transform: translateX(-5px);
+        }
+
+        /* Main container */
+        .game-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 900;
+            color: var(--wood-light);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            color: var(--wood-light);
+            font-weight: 300;
+            margin-bottom: 15px;
+        }
+
+        /* Game area */
+        .game-area {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 30px;
+            align-items: start;
+            justify-content: center;
+        }
+
+        /* Game board */
+        .board-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .board-container {
+            background: var(--board-bg);
+            border: 4px solid var(--wood-primary);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .board-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 29px,
+                    var(--grid-line) 29px,
+                    var(--grid-line) 30px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 29px,
+                    var(--grid-line) 29px,
+                    var(--grid-line) 30px
+                );
+            pointer-events: none;
+            border-radius: var(--border-radius);
+        }
+
+        #game-board {
+            border: 2px solid var(--wood-primary);
+            background: var(--board-bg);
+            position: relative;
+            z-index: 1;
+            cursor: default;
+        }
+        
+        #game-board.dragging-over {
+            cursor: copy;
+            box-shadow: 0 0 30px rgba(76, 175, 80, 0.3);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: var(--wood-primary);
+            border: 2px solid var(--wood-light);
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            color: var(--wood-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            box-shadow: var(--shadow);
+        }
+
+        .control-btn:hover {
+            background: var(--wood-secondary);
+            transform: translateY(-2px);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+
+
+        /* Pieces tray */
+        .pieces-section {
+            background: rgba(139, 69, 19, 0.9);
+            border: 3px solid var(--wood-light);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .pieces-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--wood-light);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .pieces-tray {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .piece-slot {
+            background: var(--board-bg);
+            border: 2px solid var(--wood-primary);
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: grab;
+        }
+
+        .piece-slot.dragging {
+            cursor: grabbing;
+            opacity: 0.3;
+            transform: scale(0.95);
+            box-shadow: 0 0 20px rgba(210, 105, 30, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        /* Enhanced drag and drop effects */
+        .floating-piece {
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+            transition: transform 0.1s ease-out;
+        }
+
+        @keyframes bounceBack {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .placement-particle {
+            animation: particleFade 0.5s ease-out forwards;
+        }
+
+        @keyframes particleFade {
+            0% { 
+                opacity: 1; 
+                transform: scale(1);
+            }
+            100% { 
+                opacity: 0; 
+                transform: scale(0);
+            }
+        }
+
+        /* Enhanced piece slot hover effects */
+        .piece-slot:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 69, 19, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .piece-slot:active {
+            transform: translateY(0);
+            transition: all 0.1s ease;
+        }
+
+        .piece-slot.piece-selected {
+            transform: scale(0.95);
+            box-shadow: 0 0 20px rgba(210, 105, 30, 0.8);
+            border-color: var(--accent-color);
+            background: linear-gradient(135deg, #F5DEB3, #DEB887);
+            transition: all 0.2s ease;
+        }
+
+        .piece-slot.empty {
+            border-style: dashed;
+            border-color: var(--wood-secondary);
+        }
+
+        /* Stats panel */
+        .stats-section {
+            background: rgba(139, 69, 19, 0.9);
+            border: 3px solid var(--wood-light);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .stats-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--wood-light);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: var(--board-bg);
+            border: 2px solid var(--wood-primary);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Game over modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--board-bg);
+            border: 4px solid var(--wood-primary);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+
+        .modal-stats {
+            margin-bottom: 25px;
+        }
+
+        .modal-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            background: var(--wood-primary);
+            border: 2px solid var(--wood-light);
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            color: var(--wood-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .modal-btn:hover {
+            background: var(--wood-secondary);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .game-area {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .game-container {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 10px;
+            }
+            
+            .header {
+                margin-bottom: 20px;
+            }
+            
+            .board-container {
+                padding: 15px;
+            }
+            
+            .pieces-section,
+            .stats-section {
+                padding: 15px;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .control-btn {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+            
+
+            
+            .back-btn {
+                top: 15px;
+                left: 15px;
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-container {
+                padding: 8px;
+            }
+            
+            .board-container {
+                padding: 10px;
+            }
+            
+            .pieces-section,
+            .stats-section {
+                padding: 10px;
+            }
+            
+
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back button -->
+    <a href="puzzle-menu.html" class="back-btn">
+        <span>←</span>
+        <span>Về Menu</span>
+    </a>
+
+    <!-- Main container -->
+    <div class="game-container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">🪵 WOOD BLOCK PUZZLE</h1>
+            <p class="subtitle">Game cho Hằng xinh gái ❤️</p>
+        </div>
+
+        <!-- Game area -->
+        <div class="game-area">
+            <!-- Stats panel -->
+            <div class="stats-section">
+                <h2 class="stats-title">📊 Thống kê</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Điểm số</div>
+                        <div class="stat-value" id="score">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Hàng đã xóa</div>
+                        <div class="stat-value" id="lines-cleared">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Khối đã đặt</div>
+                        <div class="stat-value" id="pieces-placed">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Combo</div>
+                        <div class="stat-value" id="combo">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game board -->
+            <div class="board-section">
+                <div class="board-container">
+                    <canvas id="game-board" width="280" height="280"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <button class="control-btn" id="pause-btn">⏸️ Tạm dừng</button>
+                </div>
+            </div>
+
+            <!-- Pieces tray -->
+            <div class="pieces-section">
+                <h2 class="pieces-title">🧩 Khối gỗ</h2>
+                <div class="pieces-tray" id="pieces-tray">
+                    <!-- Pieces will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal" id="game-over-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">🎮 Game Over!</h2>
+            <div class="modal-stats">
+                <div class="modal-stat">
+                    <span>Điểm số:</span>
+                    <span id="final-score">0</span>
+                </div>
+                <div class="modal-stat">
+                    <span>Hàng đã xóa:</span>
+                    <span id="final-lines">0</span>
+                </div>
+                <div class="modal-stat">
+                    <span>Khối đã đặt:</span>
+                    <span id="final-pieces">0</span>
+                </div>
+                <div class="modal-stat">
+                    <span>Combo cao nhất:</span>
+                    <span id="final-combo">0</span>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn" id="play-again-btn">🎮 Chơi lại</button>
+                <a href="puzzle-menu.html" class="modal-btn">🏠 Về Menu</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pause Modal -->
+    <div class="modal" id="pause-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">⏸️ Tạm dừng</h2>
+            <div class="modal-buttons">
+                <button class="modal-btn" id="resume-btn">▶️ Tiếp tục</button>
+                <button class="modal-btn" id="restart-btn">🔄 Chơi lại</button>
+                <a href="puzzle-menu.html" class="modal-btn">🏠 Về Menu</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Basic Puzzle game initialization to prevent white screen
+        console.log('Loading Wood Block Puzzle game...');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing Puzzle game...');
+            
+            // Initialize canvas
+            const canvas = document.getElementById('game-board');
+            const ctx = canvas.getContext('2d');
+            
+            if (!ctx) {
+                console.error('Canvas context not available');
+                return;
+            }
+            
+            // Set up responsive canvas
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                const maxSize = Math.min(280, container.offsetWidth - 40);
+                
+                canvas.style.width = maxSize + 'px';
+                canvas.style.height = maxSize + 'px';
+                
+                // Mobile adjustments
+                if (window.innerWidth <= 480) {
+                    const mobileSize = Math.min(250, window.innerWidth - 60);
+                    canvas.style.width = mobileSize + 'px';
+                    canvas.style.height = mobileSize + 'px';
+                }
+            }
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Draw initial game board
+            ctx.fillStyle = '#F5DEB3';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw 10x10 grid
+            ctx.strokeStyle = 'rgba(139, 69, 19, 0.3)';
+            ctx.lineWidth = 1;
+            
+            const gridSize = 28; // 280/10
+            for (let x = 0; x <= canvas.width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            for (let y = 0; y <= canvas.height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Draw welcome message
+            ctx.fillStyle = '#8B4513';
+            ctx.font = 'bold 18px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.fillText('🪵 WOOD BLOCK PUZZLE', canvas.width / 2, canvas.height / 2 - 20);
+            ctx.font = '14px Inter';
+            ctx.fillStyle = '#654321';
+            ctx.fillText('Kéo và thả khối gỗ vào bảng', canvas.width / 2, canvas.height / 2 + 10);
+            
+            // Initialize stats
+            document.getElementById('score').textContent = '0';
+            document.getElementById('lines-cleared').textContent = '0';
+            document.getElementById('pieces-placed').textContent = '0';
+            document.getElementById('combo').textContent = '0';
+            
+            // Initialize pieces tray with placeholder
+            const piecesTray = document.getElementById('pieces-tray');
+            for (let i = 0; i < 3; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'piece-slot empty';
+                slot.innerHTML = '<div style="color: #8B4513; font-size: 24px;">🧩</div>';
+                piecesTray.appendChild(slot);
+            }
+            
+            console.log('Basic Puzzle interface loaded successfully');
+        });
+        
+        // Modal handlers
+        document.getElementById('pause-btn')?.addEventListener('click', function() {
+            document.getElementById('pause-modal').classList.add('show');
+        });
+        
+        document.getElementById('resume-btn')?.addEventListener('click', function() {
+            document.getElementById('pause-modal').classList.remove('show');
+        });
+        
+        document.getElementById('restart-btn')?.addEventListener('click', function() {
+            document.getElementById('pause-modal').classList.remove('show');
+            console.log('Restart requested');
+        });
+        
+        document.getElementById('play-again-btn')?.addEventListener('click', function() {
+            document.getElementById('game-over-modal').classList.remove('show');
+            console.log('Play again requested');
+        });
+    </script>
+    
+    <!-- Load simple puzzle game -->
+    <script src="puzzle.js"></script>
+</body>
+</html>
