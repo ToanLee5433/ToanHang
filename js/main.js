@@ -25,6 +25,18 @@ class GameHubApp {
                 this.handleAuthStateChange(user);
             });
             
+            // Fallback: hide loading screen after 2.5 seconds if it's still visible
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen && loadingScreen.style.display !== 'none') {
+                    console.warn('⚠️ Firebase Auth took too long to resolve. Hiding loading screen via fallback.');
+                    this.hideLoadingScreen();
+                    if (!this.user) {
+                        this.loadGuestProfile();
+                    }
+                }
+            }, 2500);
+            
             console.log('🎮 Game Hub initialized successfully!');
         } catch (error) {
             console.error('Error initializing Game Hub:', error);
@@ -580,7 +592,7 @@ class GameHubApp {
             </div>
         `);
 
-        document.getElementById('google-login-btn')?.addEventListener('click', async () => {
+        loginModal.querySelector('#google-login-btn')?.addEventListener('click', async () => {
             try {
                 const user = await authService.signInWithGoogle();
                 if (user) {
