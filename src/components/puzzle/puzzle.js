@@ -18,6 +18,19 @@ class WoodBlockPuzzle {
         this.isGameOver = false;
         this.gameMode = '8x8';
         this.piecesPlacedThisRound = 0;
+        this.moveHistory = [];
+        this.stats = {
+            score: 0,
+            movesCount: 0,
+            hintsUsed: 0,
+            maxHints: 3,
+            hintsEnabled: true
+        };
+        this.settings = {
+            hintsEnabled: true,
+            sound: 'on',
+            effects: 'on'
+        };
         
         // Enhanced game features
         this.gameStats = {
@@ -388,27 +401,22 @@ class WoodBlockPuzzle {
             ctx.strokeRect(x, y, blockSize, blockSize);
         });
     }
-    
+
     setupEventListeners() {
-        // Mouse events for dragging
-        this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
-        this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
-        this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
-        
-        // Touch events for mobile
-        this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e));
-        this.canvas.addEventListener('touchmove', (e) => this.handleTouchMove(e));
-        this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e));
+        // Delegate mousedown/touchstart to the pieces tray
+        const tray = document.getElementById('pieces-tray');
+        if (tray) {
+            tray.addEventListener('mousedown', (e) => this.handleTrayMouseDown(e));
+            tray.addEventListener('touchstart', (e) => this.handleTrayTouchStart(e), { passive: false });
+        }
         
         // Control buttons - only pause button
-        document.getElementById('pause-btn').addEventListener('click', () => this.togglePause());
+        document.getElementById('pause-btn')?.addEventListener('click', () => this.togglePause());
         
         // Modal buttons
-        document.getElementById('play-again-btn').addEventListener('click', () => this.restartGame());
-        document.getElementById('resume-btn').addEventListener('click', () => this.togglePause());
-        document.getElementById('restart-btn').addEventListener('click', () => this.restartGame());
-        
-
+        document.getElementById('play-again-btn')?.addEventListener('click', () => this.restartGame());
+        document.getElementById('resume-btn')?.addEventListener('click', () => this.togglePause());
+        document.getElementById('restart-btn')?.addEventListener('click', () => this.restartGame());
         
         // Keyboard controls
         document.addEventListener('keydown', (e) => this.handleKeyPress(e));
@@ -416,9 +424,137 @@ class WoodBlockPuzzle {
         // Add click events to piece slots
         this.addPieceSlotEvents();
     }
-    
 
-    
+    handleTrayMouseDown(e) {
+        if (this.isPaused || this.isGameOver) return;
+        const slot = e.target.closest('.piece-slot');
+        if (!slot) return;
+        
+        const pieceIndex = parseInt(slot.dataset.pieceIndex);
+        if (isNaN(pieceIndex)) return;
+        
+        const rect = this.canvas.getBoundingClientRect();
+        const canvasX = e.clientX - rect.left;
+        const canvasY = e.clientY - rect.top;
+        
+        this.startDragging(pieceIndex, canvasX, canvasY);
+        this.updateFloatingPiece(e.clientX, e.clientY);
+        
+        this.onDocMouseMove = (ev) => {
+            const canvasRect = this.canvas.getBoundingClientRect();
+            const cx = ev.clientX - canvasRect.left;
+            const cy = ev.clientY - canvasRect.top;
+            this.updateDragPosition(cx, cy);
+            this.updateFloatingPiece(ev.clientX, ev.clientY);
+        };
+        
+        this.onDocMouseUp = (ev) => {
+            const canvasRect = this.canvas.getBoundingClientRect();
+            const cx = ev.clientX - canvasRect.left;
+            const cy = ev.clientY - canvasRect.top;
+            
+            document.removeEventListener('mousemove', this.onDocMouseMove);
+            document.removeEventListener('mouseup', this.onDocMouseUp);
+            
+            this.endDragging(cx, cy);
+        };
+        
+        document.addEventListener('mousemove', this.onDocMouseMove);
+        document.addEventListener('mouseup', this.onDocMouseUp);
+    }
+
+    handleTrayTouchStart(e) {
+        if (this.isPaused || this.isGameOver) return;
+        const slot = e.target.closest('.piece-slot');
+        if (!slot) return;
+        
+        const pieceIndex = parseInt(slot.dataset.pieceIndex);
+        if (isNaN(pieceIndex)) return;
+        
+        const touch = e.touches[0];
+        const rect = this.canvas.getBoundingClientRect();
+        const canvasX = touch.clientX - rect.left;
+        const canvasY = touch.clientY - rect.top;
+        
+        this.startDragging(pieceIndex, canvasX, canvasY);
+        this.updateFloatingPiece(touch.clientX, touch.clientY);
+        
+        this.onDocTouchMove = (ev) => {
+            if (ev.cancelable) ev.preventDefault();
+            const touchMove = ev.touches[0];
+            const canvasRect = this.canvas.getBoundingClientRect();
+            const cx = touchMove.clientX - canvasRect.left;
+            const cy = touchMove.clientY - canvasRect.top;
+            this.updateDragPosition(cx, cy);
+            this.updateFloatingPiece(touchMove.clientX, touchMove.clientY);
+        };
+        
+        this.onDocTouchEnd = (ev) => {
+            const touchEnd = ev.changedTouches[0];
+            const canvasRect = this.canvas.getBoundingClientRect();
+            const cx = touchEnd.clientX - canvasRect.left;
+            const cy = touchEnd.clientY - canvasRect.top;
+            
+            document.removeEventListener('touchmove', this.onDocTouchMove);
+            document.removeEventListener('touchend', this.onDocTouchEnd);
+            
+            this.endDragging(cx, cy);
+        };
+        
+        document.addEventListener('touchmove', this.onDocTouchMove, { passive: false });
+        document.addEventListener('touchend', this.onDocTouchEnd);
+    }
+
+    loadStats() {
+        try {
+            const stats = JSON.parse(localStorage.getItem('puzzle-stats') || '{}');
+            this.gameStats.bestScore = stats.highScore || 0;
+            this.gameStats.gamesPlayed = stats.gamesPlayed || 0;
+            this.gameStats.totalLinesCleared = stats.totalLinesCleared || 0;
+            this.gameStats.totalPiecesPlaced = stats.totalPiecesPlaced || 0;
+        } catch (e) {
+            console.error('Error loading stats:', e);
+        }
+    }
+
+    applySettings() {
+        this.canvas.width = this.boardSize * this.cellSize;
+        this.canvas.height = this.boardSize * this.cellSize;
+        if (this.gameMode === 'fog') {
+            this.fogMode = true;
+            this.fogPosition = 'top';
+        } else if (this.gameMode === 'surprise') {
+            this.surpriseMode = true;
+        }
+    }
+
+    toggleSound() {
+        this.soundEnabled = !this.soundEnabled;
+        this.settings.sound = this.soundEnabled ? 'on' : 'off';
+        this.showMessage(this.soundEnabled ? '🔊 Đã bật âm thanh!' : '🔇 Đã tắt âm thanh!', 1500);
+    }
+
+    showMessage(text, duration = 1500) {
+        const existing = document.getElementById('puzzle-msg');
+        if (existing) existing.remove();
+        const el = document.createElement('div');
+        el.id = 'puzzle-msg';
+        el.style.cssText = `
+            position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+            background:linear-gradient(135deg,rgba(139,69,19,0.95),rgba(90,40,10,0.95));
+            color:#fff;padding:12px 24px;border-radius:12px;font-weight:700;font-size:1rem;
+            z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,0.4);text-align:center;
+            animation:puzzleMsgIn 0.2s ease;
+        `;
+        el.textContent = text;
+        document.body.appendChild(el);
+        setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity 0.3s'; setTimeout(() => el.remove(), 300); }, duration);
+    }
+
+    showErrorMessage(msg) {
+        this.showMessage(msg, 2000);
+    }
+
     addPieceSlotEvents() {
         const tray = document.getElementById('pieces-tray');
         tray.addEventListener('click', (e) => {
@@ -652,6 +788,7 @@ class WoodBlockPuzzle {
     }
     
     placePiece(piece, boardX, boardY) {
+        this.saveMove(piece, this.board, this.score);
         for (let block of piece.blocks) {
             const x = boardX + block[0];
             const y = boardY + block[1];
@@ -660,6 +797,8 @@ class WoodBlockPuzzle {
         
         this.piecesPlaced++;
         this.score += piece.blocks.length * 10;
+        this.stats.score = this.score;
+        this.stats.movesCount++;
         this.updateStats();
         
         // Play placement sound
@@ -931,9 +1070,33 @@ class WoodBlockPuzzle {
         // Draw surprise obstacles if in surprise mode
         this.drawSurpriseObstacles();
         
+        // Draw hint highlight
+        if (this.hintHighlight) {
+            this.drawHintHighlight();
+        }
+        
         // Draw dragged piece
         if (this.draggedPiece) {
             this.drawDraggedPiece();
+        }
+    }
+
+    drawHintHighlight() {
+        if (!this.hintHighlight) return;
+        this.ctx.fillStyle = 'rgba(76, 175, 80, 0.4)';
+        this.ctx.strokeStyle = 'rgba(76, 175, 80, 0.8)';
+        this.ctx.lineWidth = 3;
+        
+        const { row, col, piece } = this.hintHighlight;
+        for (let block of piece.blocks) {
+            const x = col + block[0];
+            const y = row + block[1];
+            if (x >= 0 && x < this.boardSize && y >= 0 && y < this.boardSize) {
+                const pixelX = x * this.cellSize;
+                const pixelY = y * this.cellSize;
+                this.ctx.fillRect(pixelX + 2, pixelY + 2, this.cellSize - 4, this.cellSize - 4);
+                this.ctx.strokeRect(pixelX + 2, pixelY + 2, this.cellSize - 4, this.cellSize - 4);
+            }
         }
     }
     
@@ -1319,54 +1482,50 @@ class WoodBlockPuzzle {
     }
     
     findBestPlacement() {
+        let best = null;
         for (const piece of this.currentPieces) {
-            if (!piece.placed) {
-                for (let row = 0; row <= this.boardSize - piece.shape.length; row++) {
-                    for (let col = 0; col <= this.boardSize - piece.shape[0].length; col++) {
-                        if (this.canPlacePiece(piece, col, row)) {
-                            // Calculate score for this placement
-                            const score = this.calculatePlacementScore(piece, row, col);
-                            return { row, col, piece, score };
+            for (let y = 0; y < this.boardSize; y++) {
+                for (let x = 0; x < this.boardSize; x++) {
+                    if (this.canPlacePiece(piece, x, y)) {
+                        const score = this.calculatePlacementScore(piece, x, y);
+                        if (!best || score > best.score) {
+                            best = { row: y, col: x, piece, score };
                         }
                     }
                 }
             }
         }
-        return null;
+        return best;
     }
     
-    calculatePlacementScore(piece, row, col) {
+    calculatePlacementScore(piece, boardX, boardY) {
         let score = 0;
         
         // Prefer placements that create more complete rows/columns
-        for (let r = 0; r < piece.shape.length; r++) {
-            for (let c = 0; c < piece.shape[r].length; c++) {
-                if (piece.shape[r][c]) {
-                    const boardRow = row + r;
-                    const boardCol = col + c;
-                    
-                    // Check row completion potential
-                    let rowCount = 0;
-                    for (let i = 0; i < this.boardSize; i++) {
-                        if (this.board[boardRow][i] || (i === boardCol)) rowCount++;
-                    }
-                    score += rowCount * 10;
-                    
-                    // Check column completion potential
-                    let colCount = 0;
-                    for (let i = 0; i < this.boardSize; i++) {
-                        if (this.board[i][boardCol] || (i === boardRow)) colCount++;
-                    }
-                    score += colCount * 10;
-                }
+        for (let block of piece.blocks) {
+            const x = boardX + block[0];
+            const y = boardY + block[1];
+            
+            // Check row completion potential
+            let rowCount = 0;
+            for (let i = 0; i < this.boardSize; i++) {
+                if (this.board[y][i] || (i === x)) rowCount++;
             }
+            score += rowCount * 10;
+            
+            // Check column completion potential
+            let colCount = 0;
+            for (let i = 0; i < this.boardSize; i++) {
+                if (this.board[i][x] || (i === y)) colCount++;
+            }
+            score += colCount * 10;
         }
         
         return score;
     }
     
     highlightPosition(row, col, piece) {
-        this.hintHighlight = { row, col, piece };
+        this.hintHighlight = { row: col, col: row, piece };
         this.draw();
     }
     
@@ -1376,7 +1535,7 @@ class WoodBlockPuzzle {
     }
     
     undoLastMove() {
-        if (this.moveHistory.length === 0) {
+        if (!this.moveHistory || this.moveHistory.length === 0) {
             this.playSound('error');
             this.showMessage('Không có nước đi nào để hoàn tác!', 'error');
             return;
@@ -1387,12 +1546,16 @@ class WoodBlockPuzzle {
         // Restore board state
         this.board = this.deepCopy(lastMove.boardState);
         
-        // Restore piece
-        lastMove.piece.placed = false;
+        // Restore piece to the tray
+        this.currentPieces.push(lastMove.piece);
+        this.piecesPlacedThisRound = Math.max(0, this.piecesPlacedThisRound - 1);
+        this.updatePiecesTray();
         
-        // Update stats
-        this.stats.score = lastMove.score;
-        this.stats.movesCount--;
+        // Restore stats
+        this.score = lastMove.score;
+        this.stats.score = this.score;
+        this.stats.movesCount = Math.max(0, this.stats.movesCount - 1);
+        this.piecesPlaced = Math.max(0, this.piecesPlaced - 1);
         
         this.playSound('undo');
         this.updateStats();

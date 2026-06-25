@@ -22,80 +22,75 @@
         }
 
         body {
-            background: linear-gradient(135deg, #2E8B57 0%, #228B22 100%);
+            background: linear-gradient(135deg, #fff5f8 0%, #ffe3ec 50%, #ffc2d9 100%);
+            background-size: 200% 200%;
+            animation: pink-glow 15s ease infinite alternate;
             min-height: 100vh;
             font-family: 'Roboto', sans-serif;
             overflow-x: hidden;
             padding: 10px;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(220, 20, 60, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(0, 0, 139, 0.2) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: -1;
+        @keyframes pink-glow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
         }
 
         .back-to-hub {
             position: fixed;
             top: 10px;
             left: 10px;
-            background: rgba(255, 255, 255, 0.95);
-            border: 2px solid #e83e8c;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ff3385;
             padding: 8px 12px;
             border-radius: 8px;
-            color: #495057;
+            color: #4a0e2e;
             text-decoration: none;
             font-weight: 600;
             font-size: clamp(0.8rem, 2vw, 1rem);
             transition: all 0.3s ease;
             z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(255, 51, 133, 0.15);
+            backdrop-filter: blur(5px);
         }
 
         .back-to-hub:hover {
-            background: #e83e8c;
+            background: linear-gradient(135deg, #ff3385, #d633ff);
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(232, 62, 140, 0.3);
+            box-shadow: 0 6px 16px rgba(255, 51, 133, 0.3);
+            border-color: transparent;
         }
 
         .cards-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             padding: 1rem 0;
         }
 
         .cards-title {
             font-family: "Press Start 2P", monospace;
             font-size: clamp(1.2rem, 4vw, 2.5rem);
-            color: #FFD700;
+            color: #ff3385;
             margin-bottom: 0.5rem;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 0px #ffe3ec, 4px 4px 0px rgba(214, 51, 255, 0.2);
         }
 
         .cards-subtitle {
             font-size: clamp(0.9rem, 2.5vw, 1.2rem);
-            color: #FFF;
+            color: #8c5273;
             font-weight: 500;
         }
 
         .game-container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 35px rgba(255, 102, 163, 0.12);
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 51, 133, 0.15);
         }
 
         /* Game Selection */
@@ -105,7 +100,7 @@
 
         .game-selection h2 {
             text-align: center;
-            color: #2E8B57;
+            color: #4a0e2e;
             margin-bottom: 20px;
             font-size: clamp(1.2rem, 3vw, 1.8rem);
         }
@@ -118,8 +113,8 @@
         }
 
         .game-mode-card {
-            background: linear-gradient(135deg, #fff, #f8f9fa);
-            border: 3px solid #dee2e6;
+            background: linear-gradient(135deg, #fff, #ffeef4);
+            border: 3px solid rgba(255, 51, 133, 0.1);
             border-radius: 16px;
             padding: 20px;
             text-align: center;
@@ -127,6 +122,7 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 15px rgba(255, 182, 193, 0.1);
         }
 
         .game-mode-card::before {
@@ -136,59 +132,67 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #DC143C, #FFD700, #0000CD, #228B22);
+            background: linear-gradient(90deg, #ff3385, #d633ff, #ff5c93, #ffd3b6);
         }
 
         .game-mode-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            border-color: #2E8B57;
+            box-shadow: 0 10px 25px rgba(255, 51, 133, 0.15);
+            border-color: #ff3385;
         }
 
         .game-mode-card.selected {
-            border-color: #2E8B57;
-            background: linear-gradient(135deg, #f0fff0, #e6ffe6);
+            border-color: #ff3385;
+            background: linear-gradient(135deg, #fff0f5, #ffe4e1);
             transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(255, 51, 133, 0.2);
         }
 
         .game-icon {
             font-size: 3rem;
             margin-bottom: 15px;
             display: block;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
         }
 
         .game-name {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: #2E8B57;
+            color: #4a0e2e;
             margin-bottom: 10px;
         }
 
         .game-description {
-            color: #6c757d;
-            font-size: 0.95rem;
+            color: #8c5273;
+            font-size: 0.9rem;
             line-height: 1.4;
             margin-bottom: 15px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .players-count {
-            background: #2E8B57;
+            background: linear-gradient(135deg, #ff3385, #d633ff);
             color: white;
             padding: 5px 12px;
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             display: inline-block;
+            box-shadow: 0 3px 8px rgba(255, 51, 133, 0.2);
         }
 
         /* Room Setup */
         .room-setup {
-            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
-            border: 2px solid #2196F3;
+            background: linear-gradient(135deg, #ffeef4, #f5eefc);
+            border: 2px solid rgba(255, 51, 133, 0.2);
             border-radius: 16px;
             padding: 25px;
             margin-bottom: 25px;
             display: none;
+            box-shadow: 0 8px 25px rgba(255, 102, 163, 0.08);
         }
 
         .room-setup.active {
@@ -202,10 +206,11 @@
         }
 
         .room-setup h3 {
-            color: #2196F3;
+            color: #ff3385;
             margin-bottom: 20px;
             font-size: 1.4rem;
             text-align: center;
+            font-weight: 700;
         }
 
         .room-form {
@@ -221,7 +226,7 @@
         }
 
         .form-label {
-            color: #495057;
+            color: #4a0e2e;
             font-weight: 600;
             margin-bottom: 5px;
             font-size: 0.95rem;
@@ -229,25 +234,34 @@
 
         .form-input {
             padding: 12px;
-            border: 2px solid #dee2e6;
+            border: 2px solid rgba(255, 51, 133, 0.15);
             border-radius: 8px;
             font-size: 1rem;
-            transition: border-color 0.3s ease;
+            color: #4a0e2e;
+            transition: all 0.3s ease;
+            background: white;
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #2196F3;
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+            border-color: #ff3385;
+            box-shadow: 0 0 0 3px rgba(255, 51, 133, 0.15);
         }
 
         .form-select {
             padding: 12px;
-            border: 2px solid #dee2e6;
+            border: 2px solid rgba(255, 51, 133, 0.15);
             border-radius: 8px;
             font-size: 1rem;
+            color: #4a0e2e;
             background: white;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #ff3385;
         }
 
         .room-actions {
@@ -258,7 +272,7 @@
         }
 
         .room-btn {
-            background: linear-gradient(135deg, #2E8B57, #228B22);
+            background: linear-gradient(135deg, #ff3385, #d633ff);
             color: white;
             border: none;
             padding: 12px 24px;
@@ -268,26 +282,34 @@
             transition: all 0.3s ease;
             font-size: 1rem;
             min-width: 150px;
+            box-shadow: 0 4px 12px rgba(255, 51, 133, 0.2);
+            text-align: center;
         }
 
         .room-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+            box-shadow: 0 8px 20px rgba(255, 51, 133, 0.35);
         }
 
         .room-btn.secondary {
-            background: linear-gradient(135deg, #6c757d, #495057);
+            background: linear-gradient(135deg, #8c5273, #663d55);
+            box-shadow: 0 4px 12px rgba(140, 82, 115, 0.2);
+        }
+
+        .room-btn.secondary:hover {
+            box-shadow: 0 8px 20px rgba(140, 82, 115, 0.35);
         }
 
         /* Game Status */
         .game-status {
-            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-            border: 2px solid #ffc107;
+            background: linear-gradient(135deg, #fff0f5, #ffe4e1);
+            border: 2px solid rgba(255, 51, 133, 0.2);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 25px;
             text-align: center;
             display: none;
+            box-shadow: 0 4px 15px rgba(255, 51, 133, 0.1);
         }
 
         .game-status.active {
@@ -295,24 +317,31 @@
         }
 
         .status-message {
-            color: #856404;
-            font-weight: 600;
+            color: #ff3385;
+            font-weight: 700;
             font-size: 1.1rem;
             margin-bottom: 10px;
         }
 
         .room-info {
-            color: #6c757d;
+            color: #8c5273;
             font-size: 0.95rem;
         }
 
         /* Players List */
         .players-section {
             display: none;
+            margin-bottom: 20px;
         }
 
         .players-section.active {
             display: block;
+        }
+
+        .players-section h3 {
+            color: #4a0e2e;
+            margin-bottom: 15px;
+            font-weight: 700;
         }
 
         .players-grid {
@@ -323,53 +352,57 @@
         }
 
         .player-card {
-            background: linear-gradient(135deg, #fff, #f8f9fa);
-            border: 2px solid #dee2e6;
+            background: white;
+            border: 2px solid rgba(255, 51, 133, 0.1);
             border-radius: 12px;
             padding: 15px;
             text-align: center;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(255, 102, 163, 0.05);
         }
 
         .player-card.host {
-            border-color: #FFD700;
-            background: linear-gradient(135deg, #fffbf0, #fff8e1);
+            border-color: #ffd3b6;
+            background: linear-gradient(135deg, #fffbf7, #fff8f2);
         }
 
         .player-card.ready {
             border-color: #28a745;
-            background: linear-gradient(135deg, #f0fff4, #e6fffa);
+            background: linear-gradient(135deg, #f0fff4, #e6ffe6);
         }
 
         .player-avatar {
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #ff3385, #d633ff);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
             color: white;
             margin: 0 auto 10px;
+            box-shadow: 0 4px 10px rgba(255, 51, 133, 0.2);
+            font-weight: 700;
         }
 
         .player-name {
             font-weight: 600;
-            color: #495057;
+            color: #4a0e2e;
             margin-bottom: 5px;
         }
 
         .player-status {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             padding: 4px 8px;
             border-radius: 12px;
-            font-weight: 500;
+            font-weight: 600;
+            display: inline-block;
         }
 
         .player-status.host {
-            background: #FFD700;
-            color: #856404;
+            background: #ffd3b6;
+            color: #8a573c;
         }
 
         .player-status.ready {
@@ -378,7 +411,7 @@
         }
 
         .player-status.waiting {
-            background: #6c757d;
+            background: #8c5273;
             color: white;
         }
 
@@ -393,13 +426,15 @@
         }
 
         .game-board {
-            background: #2E8B57;
-            border-radius: 16px;
-            padding: 20px;
+            background: linear-gradient(135deg, #80002a 0%, #4d0019 100%);
+            border-radius: 20px;
+            padding: 25px;
             margin-bottom: 20px;
-            min-height: 400px;
+            min-height: 420px;
             position: relative;
             overflow: hidden;
+            border: 6px solid #ffd700;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.6), 0 10px 30px rgba(0,0,0,0.3);
         }
 
         .game-board::before {
@@ -414,8 +449,8 @@
                     45deg,
                     transparent,
                     transparent 2px,
-                    rgba(255,255,255,0.05) 2px,
-                    rgba(255,255,255,0.05) 4px
+                    rgba(255,255,255,0.03) 2px,
+                    rgba(255,255,255,0.03) 4px
                 );
             pointer-events: none;
         }
@@ -425,13 +460,13 @@
             justify-content: center;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             margin: 20px 0;
         }
 
         .playing-card {
-            width: 60px;
-            height: 84px;
+            width: 70px;
+            height: 98px;
             background: white;
             border-radius: 8px;
             border: 2px solid #333;
@@ -441,43 +476,61 @@
             justify-content: center;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            user-select: none;
         }
 
         .playing-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border-color: #ff3385;
         }
 
         .playing-card.selected {
-            transform: translateY(-10px);
-            border-color: #FFD700;
-            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+            transform: translateY(-15px) scale(1.05);
+            border-color: #ffd700;
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
+            z-index: 10;
         }
 
         .card-rank {
-            font-size: 0.8rem;
+            font-size: 1rem;
             line-height: 1;
+            position: absolute;
+            top: 5px;
+            left: 5px;
         }
 
         .card-suit {
-            font-size: 1.2rem;
+            font-size: 1.8rem;
+            margin-top: 10px;
         }
 
         .card-red {
-            color: #DC143C;
+            color: #e6005c;
         }
 
         .card-black {
-            color: #000;
+            color: #1a1a1a;
         }
 
         .card-back {
-            background: linear-gradient(135deg, #001f3f, #0074D9);
+            background: linear-gradient(135deg, #ff3385, #d633ff);
             color: white;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Press Start 2P', monospace;
+            border: 2px solid white;
+            box-shadow: 0 4px 10px rgba(255, 51, 133, 0.3);
+        }
+
+        .card-back::after {
+            content: '❤️';
+            font-size: 1.2rem;
         }
 
         /* Game Controls */
@@ -490,34 +543,46 @@
         }
 
         .game-btn {
-            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            background: linear-gradient(135deg, #ff3385, #ff5c93);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(255, 51, 133, 0.2);
         }
 
         .game-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+            box-shadow: 0 6px 18px rgba(255, 51, 133, 0.35);
         }
 
         .game-btn:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
 
         .game-btn.primary {
             background: linear-gradient(135deg, #28a745, #20c997);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+        }
+
+        .game-btn.primary:hover {
+            box-shadow: 0 6px 18px rgba(40, 167, 69, 0.35);
         }
 
         .game-btn.secondary {
-            background: linear-gradient(135deg, #6c757d, #495057);
+            background: linear-gradient(135deg, #8c5273, #663d55);
+            box-shadow: 0 4px 12px rgba(140, 82, 115, 0.2);
+        }
+
+        .game-btn.secondary:hover {
+            box-shadow: 0 6px 18px rgba(140, 82, 115, 0.35);
         }
 
         /* Chat */
@@ -526,14 +591,18 @@
             right: 20px;
             top: 50%;
             transform: translateY(-50%);
-            width: 300px;
-            height: 400px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            width: 320px;
+            height: 450px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(255, 102, 163, 0.15);
             display: none;
             flex-direction: column;
             z-index: 100;
+            border: 1px solid rgba(255, 51, 133, 0.2);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
         .chat-section.active {
@@ -541,14 +610,14 @@
         }
 
         .chat-header {
-            background: #2E8B57;
+            background: linear-gradient(135deg, #ff3385, #d633ff);
             color: white;
-            padding: 10px 15px;
-            border-radius: 12px 12px 0 0;
-            font-weight: 600;
+            padding: 12px 15px;
+            font-weight: 700;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .chat-toggle {
@@ -557,37 +626,71 @@
             color: white;
             font-size: 1.2rem;
             cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.2);
         }
 
         .chat-messages {
             flex: 1;
-            padding: 10px;
+            padding: 15px;
             overflow-y: auto;
             font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .chat-input-container {
-            padding: 10px;
-            border-top: 1px solid #dee2e6;
+            padding: 12px;
+            border-top: 1px solid rgba(255, 51, 133, 0.1);
             display: flex;
-            gap: 5px;
+            gap: 8px;
+            background: white;
         }
 
         .chat-input {
             flex: 1;
-            padding: 8px;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
+            padding: 10px;
+            border: 1.5px solid rgba(255, 51, 133, 0.15);
+            border-radius: 8px;
             font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: #ff3385;
+            box-shadow: 0 0 0 2px rgba(255, 51, 133, 0.1);
         }
 
         .chat-send {
-            background: #2E8B57;
+            background: linear-gradient(135deg, #ff3385, #d633ff);
             color: white;
             border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
+            padding: 8px 16px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(255, 51, 133, 0.25);
+        }
+
+        /* Floating Chat Toggle */
+        #chat-float-toggle {
+            background: linear-gradient(135deg, #ff3385, #d633ff) !important;
+            box-shadow: 0 6px 18px rgba(255, 51, 133, 0.3) !important;
+            transition: all 0.3s ease;
+        }
+
+        #chat-float-toggle:hover {
+            transform: scale(1.1) rotate(-5deg);
         }
 
         /* Responsive Design */
@@ -610,6 +713,7 @@
 
             .game-container {
                 padding: 15px;
+                border-radius: 12px;
             }
 
             .game-modes {
@@ -630,13 +734,29 @@
             }
 
             .playing-card {
-                width: 50px;
-                height: 70px;
+                width: 55px;
+                height: 77px;
+            }
+
+            .card-rank {
+                font-size: 0.85rem;
+                top: 3px;
+                left: 3px;
+            }
+
+            .card-suit {
+                font-size: 1.4rem;
+                margin-top: 5px;
             }
 
             .game-controls {
                 flex-direction: column;
                 align-items: center;
+            }
+
+            .game-btn {
+                width: 100%;
+                text-align: center;
             }
         }
 
@@ -654,13 +774,16 @@
             }
 
             .playing-card {
-                width: 45px;
-                height: 63px;
-                font-size: 0.8rem;
+                width: 48px;
+                height: 67px;
+            }
+
+            .card-rank {
+                font-size: 0.75rem;
             }
 
             .card-suit {
-                font-size: 1rem;
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -758,10 +881,13 @@
                 </div>
             </div>
 
-            <div class="room-actions">
-                <button class="room-btn" id="create-room-btn">Tạo phòng</button>
-                <button class="room-btn" id="join-room-btn">Tham gia phòng</button>
-                <button class="room-btn secondary" id="back-to-selection-btn">Quay lại</button>
+            <div class="room-actions" style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <button class="room-btn" id="create-room-btn" style="flex: 1;">Tạo phòng Online</button>
+                    <button class="room-btn" id="join-room-btn" style="flex: 1;">Tham gia phòng</button>
+                </div>
+                <button class="room-btn" id="play-bots-btn" style="background: linear-gradient(135deg, #ff3385, #d633ff); color: white; width: 100%; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 51, 133, 0.2);">🤖 Chơi đơn với Bot (Offline)</button>
+                <button class="room-btn secondary" id="back-to-selection-btn" style="width: 100%;">Quay lại</button>
             </div>
         </div>
 
@@ -827,19 +953,46 @@
 
     <!-- Floating Chat Toggle -->
     <div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
-        <button id="chat-float-toggle" style="background: #2E8B57; color: white; border: none; padding: 15px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+        <button id="chat-float-toggle" style="background: linear-gradient(135deg, #ff3385, #d633ff); color: white; border: none; padding: 15px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 16px rgba(255, 51, 133, 0.4); transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
             💬
         </button>
     </div>
 
     <!-- Modals would go here -->
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (Compat - required by cards.js) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
-    <!-- Load game scripts -->
-    <script type="module" src="../../js/config/firebase.js"></script>
-    <script type="module" src="cards.js"></script>
+    <!-- Initialize Firebase Compat for global access -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwIekGMPWyR-cExKVwe5xXWEIF3P9OMhQ",
+            authDomain: "gamechohangham.firebaseapp.com",
+            databaseURL: "https://gamechohangham-default-rtdb.firebaseio.com",
+            projectId: "gamechohangham",
+            storageBucket: "gamechohangham.firebasestorage.app",
+            messagingSenderId: "756408901257",
+            appId: "1:756408901257:web:6af134916d555bd61b3058",
+            measurementId: "G-ECNQQN35XG"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        window.firebaseConfig = firebaseConfig;
+        // Expose firebaseAuth compat for username autofill
+        window.firebaseAuth = {
+            onAuthStateChanged: function(cb) {
+                firebase.auth().onAuthStateChanged(cb);
+            }
+        };
+    </script>
+
+    <!-- Firebase RTDB Service (dùng chung) -->
+    <script src="../../js/services/rtdb.js"></script>
+
+    <!-- Load game script (non-module to access firebase global) -->
+    <script src="cards.js"></script>
 </body>
 </html>

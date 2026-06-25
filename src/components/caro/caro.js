@@ -27,6 +27,7 @@ class CaroGame {
         
         // Chat
         this.chatMessages = [];
+        this.isPlayWithAI = false;
         
         this.init();
     }
@@ -52,12 +53,9 @@ class CaroGame {
     
     initializeFirebase() {
         try {
-            if (typeof firebase !== 'undefined' && window.firebaseConfig) {
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(window.firebaseConfig);
-                }
+            if (typeof firebase !== 'undefined') {
                 this.db = firebase.database();
-                console.log('Firebase initialized successfully');
+                console.log('Firebase Realtime Database connected!');
             } else {
                 console.warn('Firebase not available, running in offline mode');
             }
@@ -69,6 +67,8 @@ class CaroGame {
     setupEventListeners() {
         // Room controls
         document.getElementById('join-room-btn').addEventListener('click', () => this.joinRoom());
+        document.getElementById('play-ai-btn')?.addEventListener('click', () => this.playWithAI());
+        document.getElementById('play-local-btn')?.addEventListener('click', () => this.playLocal2P());
         
         // Game controls
         document.getElementById('reset-btn').addEventListener('click', () => this.resetGame());
@@ -221,6 +221,86 @@ class CaroGame {
         this.startOnlineGame();
     }
     
+    playWithAI() {
+        const playerName = document.getElementById('player-name').value.trim() || 'Hằng xinh gái';
+        this.playerName = playerName;
+        this.playerId = this.generatePlayerId();
+        this.isOnline = false;
+        this.isPlayWithAI = true;
+        this.playerSymbol = 'X';
+        this.opponent = { name: 'Máy tính (AI)', symbol: 'O' };
+        
+        this.roomCode = 'AI-MODE';
+        this.updateRoomStatus('connected');
+        document.getElementById('room-status').textContent = 'Đang chơi với Máy tính';
+        
+        this.gameStarted = true;
+        this.currentPlayer = 'X';
+        this.moveCount = 0;
+        this.gameEnded = false;
+        this.board = Array(this.boardSize).fill().map(() => Array(this.boardSize).fill(''));
+        
+        this.startTimer();
+        this.updatePlayerCards();
+        this.updateUI();
+        this.updateBoard();
+        
+        document.getElementById('players-info').style.display = 'grid';
+        document.getElementById('room-display').textContent = 'Local (AI)';
+        
+        document.getElementById('player-x-name').textContent = this.playerName;
+        document.getElementById('player-o-name').textContent = 'Máy tính (AI)';
+        
+        this.clearChat();
+        this.displayChatMessage({
+            sender: 'Hệ thống',
+            senderId: 'system',
+            content: 'Bắt đầu chơi với Máy tính! Bạn đi trước (X). Chúc bạn chơi vui vẻ! 💖',
+            timestamp: Date.now(),
+            type: 'system'
+        });
+    }
+    
+    playLocal2P() {
+        const playerName = document.getElementById('player-name').value.trim() || 'Người chơi 1';
+        this.playerName = playerName;
+        this.playerId = this.generatePlayerId();
+        this.isOnline = false;
+        this.isPlayWithAI = false;
+        this.playerSymbol = 'X';
+        this.opponent = { name: 'Người chơi 2', symbol: 'O' };
+        
+        this.roomCode = 'LOCAL-2P';
+        this.updateRoomStatus('connected');
+        document.getElementById('room-status').textContent = 'Đang chơi 2 người cục bộ';
+        
+        this.gameStarted = true;
+        this.currentPlayer = 'X';
+        this.moveCount = 0;
+        this.gameEnded = false;
+        this.board = Array(this.boardSize).fill().map(() => Array(this.boardSize).fill(''));
+        
+        this.startTimer();
+        this.updatePlayerCards();
+        this.updateUI();
+        this.updateBoard();
+        
+        document.getElementById('players-info').style.display = 'grid';
+        document.getElementById('room-display').textContent = 'Local (2P)';
+        
+        document.getElementById('player-x-name').textContent = this.playerName;
+        document.getElementById('player-o-name').textContent = 'Người chơi 2';
+        
+        this.clearChat();
+        this.displayChatMessage({
+            sender: 'Hệ thống',
+            senderId: 'system',
+            content: 'Bắt đầu chơi 2 người cục bộ! X đi trước, O đi sau. Luân phiên đi quân trên cùng máy tính! 👥',
+            timestamp: Date.now(),
+            type: 'system'
+        });
+    }
+    
     setupRoomListeners() {
         if (!this.roomRef) return;
         
@@ -274,7 +354,7 @@ class CaroGame {
     }
     
     startOnlineGame() {
-        this.isOnline = true;
+        this.isOnline = (!this.isPlayWithAI && this.roomCode !== 'LOCAL-2P' && this.roomCode !== 'AI-MODE');
         this.gameStarted = true;
         this.currentPlayer = 'X';
         this.moveCount = 0;
@@ -306,6 +386,11 @@ class CaroGame {
         // Check if it's player's turn in online mode
         if (this.isOnline && this.currentPlayer !== this.playerSymbol) {
             this.addSystemMessage('Chưa đến lượt của bạn!');
+            return;
+        }
+        
+        // In AI mode, do not allow human to click on AI's turn (O)
+        if (this.isPlayWithAI && this.currentPlayer === 'O') {
             return;
         }
         
@@ -341,9 +426,9 @@ class CaroGame {
             });
         }
         
-        // AI move in offline mode
-        if (!this.isOnline && this.currentPlayer === 'O') {
-            setTimeout(() => this.makeAIMove(), 1000);
+        // AI move in AI mode
+        if (this.isPlayWithAI && this.currentPlayer === 'O') {
+            setTimeout(() => this.makeAIMove(), 800);
         }
     }
     

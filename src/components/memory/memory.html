@@ -634,6 +634,24 @@
         </div>
     </div>
 
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwIekGMPWyR-cExKVwe5xXWEIF3P9OMhQ",
+            authDomain: "gamechohangham.firebaseapp.com",
+            databaseURL: "https://gamechohangham-default-rtdb.firebaseio.com",
+            projectId: "gamechohangham",
+            storageBucket: "gamechohangham.firebasestorage.app",
+            messagingSenderId: "756408901257",
+            appId: "1:756408901257:web:6af134916d555bd61b3058"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    </script>
+    <!-- Firebase RTDB Service (dùng chung) -->
+    <script src="../../js/services/rtdb.js"></script>
     <!-- Load Memory Game Script -->
     <script src="memory.js"></script>
 </body>

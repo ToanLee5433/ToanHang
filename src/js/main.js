@@ -588,7 +588,29 @@ class GameHubApp {
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                this.showError('Đăng nhập thất bại. Vui lòng thử lại.');
+                let errorMsg = 'Đăng nhập thất bại. Vui lòng thử lại.';
+                if (error.code) {
+                    switch (error.code) {
+                        case 'auth/operation-not-allowed':
+                            errorMsg = '<strong>Lỗi cấu hình:</strong> Đăng nhập bằng Google chưa được kích hoạt trong Firebase Console.<br><br>💡 <em>Hướng dẫn sửa lỗi:</em><br>1. Vào <strong>Firebase Console</strong> của bạn.<br>2. Chọn <strong>Authentication</strong> -> <strong>Sign-in method</strong>.<br>3. Bật (Enable) nhà cung cấp <strong>Google</strong> và nhấn Lưu.';
+                            break;
+                        case 'auth/popup-blocked':
+                            errorMsg = '<strong>Lỗi popup:</strong> Cửa sổ đăng nhập bị chặn bởi trình duyệt.<br><br>💡 <em>Khắc phục:</em> Cho phép trang web mở pop-up trong cài đặt trình duyệt và thử lại.';
+                            break;
+                        case 'auth/popup-closed-by-user':
+                            errorMsg = 'Bạn đã đóng cửa sổ đăng nhập trước khi hoàn tất quá trình xác thực. Vui lòng thử lại.';
+                            break;
+                        case 'auth/cancelled-popup-request':
+                            errorMsg = 'Có lỗi xảy ra do nhiều yêu cầu đăng nhập đồng thời. Vui lòng thử lại.';
+                            break;
+                        case 'auth/network-request-failed':
+                            errorMsg = '<strong>Lỗi mạng:</strong> Không thể kết nối tới máy chủ Firebase. Vui lòng kiểm tra kết nối internet của bạn.';
+                            break;
+                        default:
+                            errorMsg = `Đăng nhập thất bại. Chi tiết lỗi: <code>${error.code}</code> - ${error.message}`;
+                    }
+                }
+                this.showError(errorMsg);
             }
         });
 

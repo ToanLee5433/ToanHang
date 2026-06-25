@@ -616,16 +616,25 @@
         <!-- Game Section -->
         <div class="game-section">
             <!-- Room Setup -->
-            <div class="room-setup">
-                <h3>🎮 Tạo/Tham gia phòng</h3>
-                
-                <div class="room-controls">
-                    <input type="text" class="room-input" id="room-code" placeholder="Nhập mã phòng hoặc để trống tạo phòng mới">
-                    <input type="text" class="room-input" id="player-name" placeholder="Tên của bạn" value="Player1">
-                    <button class="room-btn" id="join-room-btn">Tham gia</button>
+            <div class="room-setup" style="background: rgba(255, 255, 255, 0.9); border: 2px solid var(--pink); border-radius: 16px; padding: 20px; box-shadow: 0 8px 25px rgba(255, 102, 163, 0.1);">
+                <h3 style="color: var(--pink); margin-bottom: 15px; font-weight: 700; font-size: 1.2rem; border-left: 4px solid var(--purple); padding-left: 10px;">👤 Thông tin người chơi</h3>
+                <div class="room-controls" style="margin-bottom: 20px;">
+                    <input type="text" class="room-input" id="player-name" placeholder="Nhập tên của bạn..." value="Hằng xinh gái" style="border: 2px solid rgba(255, 51, 133, 0.2); border-radius: 10px; padding: 10px; width: 100%;">
                 </div>
 
-                <div class="room-status" id="room-status">
+                <h3 style="color: var(--pink); margin-bottom: 15px; font-weight: 700; font-size: 1.2rem; border-left: 4px solid var(--purple); padding-left: 10px;">🎮 Chơi Cục Bộ (Không cần mạng)</h3>
+                <div class="room-controls" style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="room-btn" id="play-ai-btn" style="flex: 1; background: linear-gradient(135deg, #ff3385, #ff66a3); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; min-width: 140px; box-shadow: 0 4px 15px rgba(255, 51, 133, 0.2);">🤖 Chơi với Máy</button>
+                    <button class="room-btn" id="play-local-btn" style="flex: 1; background: linear-gradient(135deg, #d633ff, #e0aaff); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; min-width: 140px; box-shadow: 0 4px 15px rgba(214, 51, 255, 0.2);">👥 Chơi 2 người</button>
+                </div>
+                
+                <h3 style="color: var(--pink); margin-bottom: 15px; font-weight: 700; font-size: 1.2rem; border-left: 4px solid var(--purple); padding-left: 10px; border-top: 1px solid rgba(255, 51, 133, 0.15); padding-top: 15px;">🌐 Chơi Trực Tuyến</h3>
+                <div class="room-controls" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="text" class="room-input" id="room-code" placeholder="Nhập mã phòng để tham gia (để trống nếu tự tạo phòng)" style="flex: 1; border: 2px solid rgba(255, 51, 133, 0.2); border-radius: 10px; padding: 10px; min-width: 200px;">
+                    <button class="room-btn" id="join-room-btn" style="background: linear-gradient(135deg, #ff5c93, #d633ff); color: white; border: none; padding: 12px 22px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(255, 92, 147, 0.2);">Vào phòng</button>
+                </div>
+
+                <div class="room-status" id="room-status" style="margin-top: 15px; padding: 10px; border-radius: 10px; font-weight: 600; text-align: center; display: none;">
                     Đang chờ người chơi khác...
                 </div>
 
@@ -714,12 +723,39 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (Compat - required by caro.js) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
-    <!-- Load game scripts -->
-    <script type="module" src="../../js/config/firebase.js"></script>
-    <script type="module" src="caro.js"></script>
+    <!-- Initialize Firebase Compat for global access -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwIekGMPWyR-cExKVwe5xXWEIF3P9OMhQ",
+            authDomain: "gamechohangham.firebaseapp.com",
+            databaseURL: "https://gamechohangham-default-rtdb.firebaseio.com",
+            projectId: "gamechohangham",
+            storageBucket: "gamechohangham.firebasestorage.app",
+            messagingSenderId: "756408901257",
+            appId: "1:756408901257:web:6af134916d555bd61b3058",
+            measurementId: "G-ECNQQN35XG"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        window.firebaseConfig = firebaseConfig;
+        // Expose firebaseAuth compat for username autofill
+        window.firebaseAuth = {
+            onAuthStateChanged: function(cb) {
+                firebase.auth().onAuthStateChanged(cb);
+            }
+        };
+    </script>
+
+    <!-- Firebase RTDB Service (dùng chung) -->
+    <script src="../../js/services/rtdb.js"></script>
+
+    <!-- Load game script (non-module to access firebase global) -->
+    <script src="caro.js"></script>
 </body>
 </html>

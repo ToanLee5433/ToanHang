@@ -214,11 +214,6 @@ class SnakeHunter {
     }
     
     setupAdvancedControls() {
-        // Mouse controls for mobile
-        this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e));
-        this.canvas.addEventListener('touchmove', (e) => this.handleTouchMove(e));
-        this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e));
-        
         // Gesture controls
         this.setupGestureControls();
         
@@ -1248,6 +1243,167 @@ class SnakeHunter {
             this.powerUps.x10.count = 1;
         }
     }
+
+    loadStats() {
+        try {
+            const stats = JSON.parse(localStorage.getItem('snake-stats') || '{}');
+            this.gameStats.bestScore = stats.highScore || 0;
+            this.gameStats.gamesPlayed = stats.gamesPlayed || 0;
+            this.gameStats.totalPlayTime = stats.totalTime || 0;
+            this.gameStats.totalFoodsEaten = stats.foodsEaten || 0;
+        } catch (e) {
+            console.error('Error loading snake stats:', e);
+        }
+    }
+
+    toggleSound() {
+        this.soundEnabled = !this.soundEnabled;
+        this.settings.sound = this.soundEnabled ? 'on' : 'off';
+        localStorage.setItem('snake-settings', JSON.stringify(this.settings));
+        this.showGameMessage(this.soundEnabled ? '🔊 Đã bật âm thanh!' : '🔇 Đã tắt âm thanh!');
+    }
+
+    toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().then(() => {
+                this.playSound('powerup');
+                this.showGameMessage('Chế độ toàn màn hình bật!');
+            }).catch(err => console.error(err));
+        } else {
+            document.exitFullscreen().then(() => {
+                this.playSound('powerup');
+                this.showGameMessage('Thoát chế độ toàn màn hình!');
+            }).catch(err => console.error(err));
+        }
+    }
+
+    showHelp() {
+        this.showGameMessage('Phím cách: Tạm dừng | Mũi tên: Di chuyển | S: Âm thanh | F: Toàn màn hình');
+    }
+
+    addScreenShake(intensity, duration) {
+        if (this.settings.effects === 'off') return;
+        this.screenShake.intensity = intensity;
+        this.screenShake.duration = duration;
+    }
+
+    updateScreenShake() {
+        if (this.screenShake.duration > 0) {
+            this.screenShake.duration -= 16;
+            if (this.screenShake.duration < 0) {
+                this.screenShake.duration = 0;
+                this.screenShake.intensity = 0;
+            }
+        }
+    }
+
+    addTrailSegment(tail) {
+        if (!tail) return;
+        this.trail.push({
+            x: tail.x,
+            y: tail.y,
+            life: 1.0
+        });
+    }
+
+    updateTrail() {
+        for (let i = this.trail.length - 1; i >= 0; i--) {
+            this.trail[i].life -= 0.1;
+            if (this.trail[i].life <= 0) {
+                this.trail.splice(i, 1);
+            }
+        }
+    }
+
+    drawTrail() {
+        this.ctx.save();
+        for (let segment of this.trail) {
+            this.ctx.fillStyle = '#45b7d1';
+            this.ctx.globalAlpha = segment.life * 0.3;
+            const x = segment.x * this.gridSize;
+            const y = segment.y * this.gridSize;
+            this.ctx.fillRect(x + 2, y + 2, this.gridSize - 4, this.gridSize - 4);
+        }
+        this.ctx.restore();
+    }
+
+    checkLevelProgression() {
+        const newLevel = Math.floor(this.score / 100) + 1;
+        if (newLevel > this.level) {
+            this.level = newLevel;
+            this.currentSpeed = Math.max(50, this.baseSpeed - (this.level - 1) * 10);
+            this.playSound('powerup');
+            this.showGameMessage(`🌟 LÊN CẤP ${this.level}! Tốc độ tăng!`);
+        }
+    }
+
+    createStatusEffect(text, color) {
+        if (!this.canvas) return;
+        const rect = this.canvas.getBoundingClientRect();
+        const head = this.snake[0] || { x: 10, y: 10 };
+        const x = rect.left + head.x * this.gridSize;
+        const y = rect.top + head.y * this.gridSize;
+        
+        const effect = document.createElement('div');
+        effect.style.cssText = `
+            position: fixed;
+            left: ${x}px;
+            top: ${y}px;
+            color: ${color || '#fff'};
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-shadow: 1px 1px 4px #000;
+            pointer-events: none;
+            z-index: 9999;
+            animation: floatUpFade 1.2s ease-out forwards;
+        `;
+        effect.textContent = text;
+        document.body.appendChild(effect);
+        setTimeout(() => effect.remove(), 1200);
+        
+        if (!document.getElementById('float-up-styles')) {
+            const style = document.createElement('style');
+            style.id = 'float-up-styles';
+            style.textContent = `
+                @keyframes floatUpFade {
+                    0% { transform: translateY(0); opacity: 1; }
+                    100% { transform: translateY(-60px); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    createFoodConsumptionEffect(food) {
+        if (!food) return;
+        this.addParticles(food.x, food.y, food.color);
+    }
+
+    checkFoodAchievements() {
+        if (this.score === 100) {
+            this.showGameMessage('🏆 Thành tích: Đạt 100 điểm!');
+        } else if (this.score === 500) {
+            this.showGameMessage('🏆 Thành tích: Đạt 500 điểm!');
+        } else if (this.snake.length === 20) {
+            this.showGameMessage('🏆 Thành tích: Đạt chiều dài 20!');
+        }
+    }
+
+    createShrinkEffect(segment) {
+        if (!segment) return;
+        this.addParticles(segment.x, segment.y, '#FF6B6B');
+    }
+
+    createTeleportEffect(x, y) {
+        this.addParticles(x, y, '#FF1493');
+    }
+
+    createExplosionEffect(x, y) {
+        for (let i = 0; i < 3; i++) {
+            this.addParticles(x, y, '#FF4500');
+            this.addParticles(x, y, '#FFD700');
+        }
+    }
     
     addParticles(x, y, color) {
         // Check if effects are enabled in settings
@@ -1286,6 +1442,13 @@ class SnakeHunter {
         this.ctx.fillStyle = '#1a1a2e';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
+        this.ctx.save();
+        if (this.screenShake.duration > 0 && this.screenShake.intensity > 0) {
+            const dx = (Math.random() - 0.5) * this.screenShake.intensity;
+            const dy = (Math.random() - 0.5) * this.screenShake.intensity;
+            this.ctx.translate(dx, dy);
+        }
+        
         // Draw grid
         this.drawGrid();
         
@@ -1303,6 +1466,11 @@ class SnakeHunter {
         
         // Draw power-up effects
         this.drawPowerUpEffects();
+        
+        // Draw trail
+        this.drawTrail();
+        
+        this.ctx.restore();
     }
     
     drawGrid() {

@@ -1,0 +1,26 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "rooms": {
+      ".read": true,
+      ".write": true
+    },
+    "chats": {
+      ".read": true,
+      ".write": true
+    },
+    "card_rooms": {
+      ".read": true,
+      ".write": true
+    },
+    "card_chats": {
+      ".read": true,
+      ".write": true
+    },
+    "memory_rooms": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}
