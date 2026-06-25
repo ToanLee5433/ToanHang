@@ -16,22 +16,22 @@
     
     <style>
         :root {
-            --primary-color: #b829ff; /* Neon Purple */
-            --secondary-color: #ff29b8; /* Neon Pink */
-            --accent-color: #00f0f0; /* Neon Cyan */
-            --success-color: #10ff10; /* Neon Green */
-            --danger-color: #ff0a54; /* Neon Red */
-            --warning-color: #ffe600; /* Neon Yellow */
-            --dark-bg: #080314;
-            --card-bg: rgba(20, 11, 43, 0.55);
-            --border-glow: rgba(184, 41, 255, 0.25);
-            --shadow-glow: rgba(184, 41, 255, 0.15);
-            --shadow-heavy: rgba(0, 0, 0, 0.6);
-            --gradient-primary: linear-gradient(135deg, #b829ff, #ff29b8);
-            --gradient-cyan: linear-gradient(135deg, #00f0f0, #007bff);
-            --gradient-warning: linear-gradient(135deg, #ffe600, #ff8c00);
-            --gradient-success: linear-gradient(135deg, #10ff10, #00f0a0);
-            --gradient-danger: linear-gradient(135deg, #ff0a54, #ff7b00);
+            --primary-color: #ff3385; /* Sweet Pink */
+            --secondary-color: #d633ff; /* Pastel Purple */
+            --accent-color: #ff5c93; /* Warm Rose */
+            --success-color: #28a745; 
+            --danger-color: #dc3545; 
+            --warning-color: #ffc107; 
+            --dark-bg: #fff5f8;
+            --card-bg: rgba(255, 255, 255, 0.85); /* Glassmorphic white-pink card */
+            --border-glow: rgba(255, 51, 133, 0.25);
+            --shadow-glow: rgba(255, 51, 133, 0.15);
+            --shadow-heavy: rgba(255, 102, 163, 0.12);
+            --gradient-primary: linear-gradient(135deg, #ff3385, #d633ff);
+            --gradient-cyan: linear-gradient(135deg, #ff5c93, #e0aaff);
+            --gradient-warning: linear-gradient(135deg, #ffd3b6, #ff8c00);
+            --gradient-success: linear-gradient(135deg, #a8ffb2, #28a745);
+            --gradient-danger: linear-gradient(135deg, #ff9ebe, #dc3545);
         }
 
         * {
@@ -41,10 +41,10 @@
         }
         
         body {
-            background: radial-gradient(circle at 50% 50%, #150b2b 0%, #080314 100%) !important;
+            background: linear-gradient(135deg, #fff5f8 0%, #ffe3ec 50%, #ffc2d9 100%) !important;
             min-height: 100vh !important;
             font-family: 'Roboto', sans-serif;
-            color: #f8f9fa !important;
+            color: #4a0e2e !important; /* Berry color instead of white */
             overflow-x: hidden !important;
             overflow-y: auto !important;
             position: relative;
@@ -55,15 +55,15 @@
 
         /* Header Styling */
         .game-header {
-            background: rgba(13, 7, 34, 0.85) !important;
+            background: rgba(255, 255, 255, 0.85) !important;
             backdrop-filter: blur(20px) !important;
             -webkit-backdrop-filter: blur(20px) !important;
-            border-bottom: 2px solid rgba(184, 41, 255, 0.3) !important;
+            border-bottom: 2px solid rgba(255, 51, 133, 0.3) !important;
             padding: 0.75rem 0 !important;
             position: sticky !important;
             top: 0 !important;
             z-index: 100 !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+            box-shadow: 0 8px 32px rgba(255, 102, 163, 0.15) !important;
             width: 100% !important;
             height: auto !important;
             display: block !important;
@@ -192,11 +192,10 @@
         .piece-title {
             font-size: 0.9rem;
             font-weight: 700;
-            color: #f8f9fa;
+            color: #4a0e2e;
             margin-bottom: 1.2rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
         }
 
         .piece-canvas {
@@ -294,26 +293,26 @@
             background-clip: text;
         }
 
-        /* Game Board Box with Cyan Neon Glow */
+        /* Game Board Box with Pink Neon Glow */
         .game-board-container {
             position: relative;
-            background: rgba(15, 8, 32, 0.7);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            border: 2px solid rgba(0, 240, 240, 0.3);
+            border: 2px solid rgba(255, 51, 133, 0.3);
             border-radius: 24px;
             padding: 1.5rem;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 
-                        0 0 30px rgba(0, 240, 240, 0.1),
-                        inset 0 0 25px rgba(0, 240, 240, 0.05);
+            box-shadow: 0 20px 50px rgba(255, 102, 163, 0.15), 
+                        0 0 30px rgba(255, 51, 133, 0.15),
+                        inset 0 0 25px rgba(255, 51, 133, 0.05);
             transition: all 0.3s ease;
         }
 
         .game-board-container:hover {
-            border-color: rgba(0, 240, 240, 0.6);
-            box-shadow: 0 25px 60px rgba(0, 240, 240, 0.2), 
-                        0 0 40px rgba(0, 240, 240, 0.15),
-                        inset 0 0 30px rgba(0, 240, 240, 0.1);
+            border-color: rgba(255, 51, 133, 0.6);
+            box-shadow: 0 25px 60px rgba(255, 102, 163, 0.25), 
+                        0 0 40px rgba(255, 51, 133, 0.25),
+                        inset 0 0 30px rgba(255, 51, 133, 0.1);
             transform: scale(1.005);
         }
 
@@ -358,12 +357,11 @@
         .section-title {
             font-size: 1.05rem;
             font-weight: 700;
-            color: #f8f9fa;
+            color: #4a0e2e;
             margin-bottom: 1.2rem;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
         }
 
         .controls-list {
@@ -377,35 +375,35 @@
             justify-content: space-between;
             align-items: center;
             padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.5);
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 51, 133, 0.1);
             transition: all 0.3s ease;
         }
 
         .control-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(0, 240, 240, 0.25);
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(255, 51, 133, 0.3);
             transform: translateX(4px);
-            box-shadow: 0 2px 10px rgba(0, 240, 240, 0.1);
+            box-shadow: 0 2px 10px rgba(255, 102, 163, 0.1);
         }
 
         .key {
-            background: rgba(255, 255, 255, 0.1);
-            color: #00f0f0;
-            border: 1px solid rgba(0, 240, 240, 0.3);
+            background: rgba(255, 255, 255, 0.7);
+            color: #ff3385;
+            border: 1px solid rgba(255, 51, 133, 0.3);
             padding: 4px 10px;
             border-radius: 6px;
             font-weight: 700;
             font-size: 0.85rem;
             min-width: 45px;
             text-align: center;
-            box-shadow: 0 0 10px rgba(0, 240, 240, 0.15);
+            box-shadow: 0 0 10px rgba(255, 102, 163, 0.1);
         }
 
         .action {
             font-weight: 500;
-            color: #d1d1d1;
+            color: #663354;
             font-size: 0.85rem;
         }
 
@@ -477,17 +475,18 @@
         }
 
         .modal-content {
-            background: rgba(15, 8, 32, 0.95);
-            border: 2px solid rgba(184, 41, 255, 0.4);
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(255, 51, 133, 0.4);
             border-radius: 28px;
             padding: 2.5rem;
             text-align: center;
             max-width: 500px;
             width: 100%;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 
-                        0 0 40px rgba(184, 41, 255, 0.15);
+            box-shadow: 0 25px 60px rgba(255, 102, 163, 0.2), 
+                        0 0 40px rgba(255, 51, 133, 0.15);
             position: relative;
             animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #4a0e2e;
         }
 
         @keyframes modalSlideIn {

@@ -36,13 +36,13 @@ class TetrisGameLogic {
         
         // Tetromino definitions
         this.tetrominos = {
-            I: { shape: [[1, 1, 1, 1]], color: '#00f0f0' },
-            O: { shape: [[1, 1], [1, 1]], color: '#f0f000' },
-            T: { shape: [[0, 1, 0], [1, 1, 1]], color: '#a000f0' },
-            S: { shape: [[0, 1, 1], [1, 1, 0]], color: '#00f000' },
-            Z: { shape: [[1, 1, 0], [0, 1, 1]], color: '#f00000' },
-            J: { shape: [[1, 0, 0], [1, 1, 1]], color: '#0000f0' },
-            L: { shape: [[0, 0, 1], [1, 1, 1]], color: '#f0a000' }
+            I: { shape: [[1, 1, 1, 1]], color: '#ff3388' }, // Hồng sen rực rỡ
+            O: { shape: [[1, 1], [1, 1]], color: '#ff99c8' }, // Hồng phấn dịu dàng
+            T: { shape: [[0, 1, 0], [1, 1, 1]], color: '#d633ff' }, // Tím hồng neon
+            S: { shape: [[0, 1, 1], [1, 1, 0]], color: '#ff5c93' }, // Hồng đào tươi tắn
+            Z: { shape: [[1, 1, 0], [0, 1, 1]], color: '#ff9ebe' }, // Hồng san hô nhạt
+            J: { shape: [[1, 0, 0], [1, 1, 1]], color: '#e0aaff' }, // Tím lavender mộng mơ
+            L: { shape: [[0, 0, 1], [1, 1, 1]], color: '#ffb7b2' }  // Vàng hồng ngọt ngào
         };
         
         this.pieceBag = [];
@@ -547,14 +547,14 @@ class TetrisGameLogic {
     
     clearCanvas() {
         if (!this.ctx) return;
-        this.ctx.fillStyle = '#090514'; // Premium dark background
+        this.ctx.fillStyle = '#1b0514'; // Premium deep berry dark background
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
     
     drawGrid() {
         if (!this.ctx) return;
         
-        this.ctx.strokeStyle = 'rgba(184, 41, 255, 0.08)'; // Glowing violet grid lines
+        this.ctx.strokeStyle = 'rgba(255, 51, 133, 0.08)'; // Glowing pink grid lines
         this.ctx.lineWidth = 1;
         
         const cellWidth = this.canvas.width / 10;
@@ -656,11 +656,11 @@ class TetrisGameLogic {
     drawNextPiece() {
         if (!this.nextCtx || !this.nextPiece) return;
         
-        this.nextCtx.fillStyle = '#090514'; // Premium dark background
+        this.nextCtx.fillStyle = '#1b0514'; // Premium deep berry dark background
         this.nextCtx.fillRect(0, 0, this.nextCanvas.width, this.nextCanvas.height);
         
         // Draw subtle preview grid (4x4)
-        this.nextCtx.strokeStyle = 'rgba(184, 41, 255, 0.04)';
+        this.nextCtx.strokeStyle = 'rgba(255, 51, 133, 0.04)';
         this.nextCtx.lineWidth = 1;
         const cellW = this.nextCanvas.width / 4;
         const cellH = this.nextCanvas.height / 4;
@@ -690,11 +690,11 @@ class TetrisGameLogic {
     drawHoldPiece() {
         if (!this.holdCtx) return;
         
-        this.holdCtx.fillStyle = '#090514'; // Premium dark background
+        this.holdCtx.fillStyle = '#1b0514'; // Premium deep berry dark background
         this.holdCtx.fillRect(0, 0, this.holdCanvas.width, this.holdCanvas.height);
         
         // Draw subtle hold grid (4x4)
-        this.holdCtx.strokeStyle = 'rgba(184, 41, 255, 0.04)';
+        this.holdCtx.strokeStyle = 'rgba(255, 51, 133, 0.04)';
         this.holdCtx.lineWidth = 1;
         const cellW = this.holdCanvas.width / 4;
         const cellH = this.holdCanvas.height / 4;
