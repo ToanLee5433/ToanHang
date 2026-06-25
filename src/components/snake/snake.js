@@ -5,6 +5,9 @@ class SnakeHunter {
         this.ctx = null;
         this.gridSize = 30;
         this.tileCount = 20;
+        this.cols = this.tileCount;
+        this.rows = this.tileCount;
+        this.maxFoods = 3;
         this.snake = [];
         this.foods = [];
         this.obstacles = [];
@@ -166,19 +169,19 @@ class SnakeHunter {
         switch (this.backgroundPattern) {
             case 'grid':
                 return `
-                    linear-gradient(145deg, #1a1a2e, #16213e),
+                    linear-gradient(145deg, #2b0a1f, #1b0514),
                     repeating-linear-gradient(90deg, transparent, transparent 29px, rgba(255,255,255,0.05) 29px, rgba(255,255,255,0.05) 30px),
                     repeating-linear-gradient(0deg, transparent, transparent 29px, rgba(255,255,255,0.05) 29px, rgba(255,255,255,0.05) 30px)
                 `;
             case 'waves':
                 return `
-                    linear-gradient(145deg, #1a1a2e, #16213e),
-                    radial-gradient(circle at 25% 25%, rgba(78, 205, 196, 0.1) 0%, transparent 50%),
-                    radial-gradient(circle at 75% 75%, rgba(255, 107, 107, 0.1) 0%, transparent 50%)
+                    linear-gradient(145deg, #2b0a1f, #1b0514),
+                    radial-gradient(circle at 25% 25%, rgba(255, 105, 180, 0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 75% 75%, rgba(255, 51, 133, 0.15) 0%, transparent 50%)
                 `;
             default: // dots
                 return `
-                    linear-gradient(145deg, #1a1a2e, #16213e),
+                    linear-gradient(145deg, #2b0a1f, #1b0514),
                     radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1) 1px, transparent 1px),
                     radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 1px, transparent 1px)
                 `;
@@ -269,22 +272,12 @@ class SnakeHunter {
     
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
-            // Power-up shortcuts (1-9)
-            if (e.key >= '1' && e.key <= '9') {
-                const powerUpIndex = parseInt(e.key) - 1;
-                const powerUpNames = Object.keys(this.powerUps);
-                if (powerUpIndex < powerUpNames.length) {
-                    this.activatePowerUp(powerUpNames[powerUpIndex]);
-                }
-            }
+            this.handleKeyPress(e);
             
             // Special keys
             switch (e.key.toLowerCase()) {
                 case 'p':
                     this.togglePause();
-                    break;
-                case 'r':
-                    if (this.isRunning) this.restartGame();
                     break;
                 case 'm':
                     this.toggleSound();
@@ -1022,6 +1015,7 @@ class SnakeHunter {
         }
         
         const foodCount = Math.min(baseFoodCount, 8);
+        this.maxFoods = foodCount;
         
         while (this.foods.length < foodCount) {
             const food = this.generateSingleFood();
@@ -1198,6 +1192,9 @@ class SnakeHunter {
         
         // Apply game mode specific settings
         this.applyGameModeSettings();
+        
+        this.cols = this.tileCount;
+        this.rows = this.tileCount;
         
         console.log('Applied settings - Board:', this.tileCount + 'x' + this.tileCount, 'Speed:', this.baseSpeed, 'Mode:', this.gameMode);
     }
@@ -1609,6 +1606,23 @@ class SnakeHunter {
     }
     
     handleKeyPress(e) {
+        // Prevent default scrolling behavior for game keys
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+            e.preventDefault();
+        }
+        
+        // Space bar triggers pause/resume
+        if (e.key === ' ') {
+            this.togglePause();
+            return;
+        }
+        
+        // R key restarts game
+        if (e.key.toLowerCase() === 'r') {
+            this.restartGame();
+            return;
+        }
+        
         if (!this.isRunning || this.isPaused) return;
         
         let newDx = this.dx, newDy = this.dy;
@@ -1642,14 +1656,6 @@ class SnakeHunter {
                     newDy = 0;
                     directionChanged = true;
                 }
-                break;
-            case ' ':
-                e.preventDefault();
-                this.togglePause();
-                break;
-            case 'r':
-            case 'R':
-                this.restartGame();
                 break;
             case '1':
                 this.activatePowerUp('speed');

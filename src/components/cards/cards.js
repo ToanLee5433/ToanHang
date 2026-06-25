@@ -462,6 +462,7 @@ class CardsOnline {
                 gameData: this.initializeGameData()
             });
         } else {
+            this.gameData = this.initializeGameData();
             this.showGameArea();
         }
         
