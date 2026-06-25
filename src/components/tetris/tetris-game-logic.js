@@ -243,6 +243,12 @@ class TetrisGameLogic {
             this.dropTime = 0;
         }
         
+        // Update timer in UI smoothly on every frame
+        const timeEl = document.getElementById('time');
+        if (timeEl) {
+            timeEl.textContent = this.formatTime(this.gameTime);
+        }
+        
         this.draw();
         this.gameLoop = requestAnimationFrame((time) => this.update(time));
     }
@@ -541,14 +547,14 @@ class TetrisGameLogic {
     
     clearCanvas() {
         if (!this.ctx) return;
-        this.ctx.fillStyle = '#f8f9fa';
+        this.ctx.fillStyle = '#090514'; // Premium dark background
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
     
     drawGrid() {
         if (!this.ctx) return;
         
-        this.ctx.strokeStyle = '#dee2e6';
+        this.ctx.strokeStyle = 'rgba(184, 41, 255, 0.08)'; // Glowing violet grid lines
         this.ctx.lineWidth = 1;
         
         const cellWidth = this.canvas.width / 10;
@@ -590,50 +596,93 @@ class TetrisGameLogic {
     }
     
     drawPiece(piece, canvas, ctx) {
-        const cellWidth = canvas.width / 10;
-        const cellHeight = canvas.height / 20;
+        const isMainCanvas = (canvas === this.canvas);
+        const cols = isMainCanvas ? 10 : 4;
+        const rows = isMainCanvas ? 20 : 4;
+        
+        const cellWidth = canvas.width / cols;
+        const cellHeight = canvas.height / rows;
         
         for (let r = 0; r < piece.shape.length; r++) {
             for (let c = 0; c < piece.shape[r].length; c++) {
                 if (piece.shape[r][c]) {
                     const x = (piece.x + c) * cellWidth;
                     const y = (piece.y + r) * cellHeight;
-                    this.drawCell(x, y, cellWidth, cellHeight, piece.color);
+                    this.drawCell(x, y, cellWidth, cellHeight, piece.color, ctx);
                 }
             }
         }
     }
     
-    drawCell(x, y, width, height, color) {
-        if (!this.ctx) return;
+    drawCell(x, y, width, height, color, ctx) {
+        const drawCtx = ctx || this.ctx;
+        if (!drawCtx) return;
         
-        this.ctx.fillStyle = color;
-        this.ctx.fillRect(x + 1, y + 1, width - 2, height - 2);
+        // Create premium gradient for the cell
+        const grad = drawCtx.createLinearGradient(x, y, x + width, y + height);
+        grad.addColorStop(0, color);
+        // Slightly darken the bottom-right corner for 3D look
+        grad.addColorStop(1, this.adjustColorBrightness(color, -20));
         
-        // Add highlight
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        this.ctx.fillRect(x + 1, y + 1, width - 2, 2);
-        this.ctx.fillRect(x + 1, y + 1, 2, height - 2);
+        drawCtx.fillStyle = grad;
+        drawCtx.fillRect(x + 1, y + 1, width - 2, height - 2);
         
-        // Add shadow
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-        this.ctx.fillRect(x + width - 3, y + 1, 2, height - 2);
-        this.ctx.fillRect(x + 1, y + height - 3, width - 2, 2);
+        // Add glossy top-left highlight
+        drawCtx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+        drawCtx.fillRect(x + 2, y + 2, width - 4, 3);
+        drawCtx.fillRect(x + 2, y + 2, 3, height - 4);
+        
+        // Add subtle bottom-right shadow inside the block
+        drawCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        drawCtx.fillRect(x + width - 4, y + 2, 2, height - 4);
+        drawCtx.fillRect(x + 2, y + height - 4, width - 4, 2);
+        
+        // Draw thin dark outline around the block
+        drawCtx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
+        drawCtx.lineWidth = 1;
+        drawCtx.strokeRect(x + 1, y + 1, width - 2, height - 2);
+    }
+    
+    // Helper to darken/lighten hex colors for 3D gradient effect
+    adjustColorBrightness(hex, percent) {
+        let num = parseInt(hex.replace("#", ""), 16),
+            amt = Math.round(2.55 * percent),
+            R = (num >> 16) + amt,
+            G = (num >> 8 & 0x00FF) + amt,
+            B = (num & 0x0000FF) + amt;
+        return "#" + (0x1000000 + (R < 255 ? R < 0 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 0 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 0 ? 0 : B : 255)).toString(16).slice(1);
     }
     
     drawNextPiece() {
         if (!this.nextCtx || !this.nextPiece) return;
         
-        this.nextCtx.fillStyle = '#f8f9fa';
+        this.nextCtx.fillStyle = '#090514'; // Premium dark background
         this.nextCtx.fillRect(0, 0, this.nextCanvas.width, this.nextCanvas.height);
+        
+        // Draw subtle preview grid (4x4)
+        this.nextCtx.strokeStyle = 'rgba(184, 41, 255, 0.04)';
+        this.nextCtx.lineWidth = 1;
+        const cellW = this.nextCanvas.width / 4;
+        const cellH = this.nextCanvas.height / 4;
+        for (let i = 1; i < 4; i++) {
+            this.nextCtx.beginPath();
+            this.nextCtx.moveTo(i * cellW, 0);
+            this.nextCtx.lineTo(i * cellW, this.nextCanvas.height);
+            this.nextCtx.stroke();
+            this.nextCtx.beginPath();
+            this.nextCtx.moveTo(0, i * cellH);
+            this.nextCtx.lineTo(this.nextCanvas.width, i * cellH);
+            this.nextCtx.stroke();
+        }
         
         // Center the piece in the next canvas
         const piece = { ...this.nextPiece };
         const pieceWidth = piece.shape[0].length;
         const pieceHeight = piece.shape.length;
         
-        piece.x = Math.floor((4 - pieceWidth) / 2);
-        piece.y = Math.floor((4 - pieceHeight) / 2);
+        // Use floating point division for smoother centering on the 4x4 preview grid
+        piece.x = (4 - pieceWidth) / 2;
+        piece.y = (4 - pieceHeight) / 2;
         
         this.drawPiece(piece, this.nextCanvas, this.nextCtx);
     }
@@ -641,15 +690,32 @@ class TetrisGameLogic {
     drawHoldPiece() {
         if (!this.holdCtx) return;
         
-        this.holdCtx.fillStyle = '#f8f9fa';
+        this.holdCtx.fillStyle = '#090514'; // Premium dark background
         this.holdCtx.fillRect(0, 0, this.holdCanvas.width, this.holdCanvas.height);
         
+        // Draw subtle hold grid (4x4)
+        this.holdCtx.strokeStyle = 'rgba(184, 41, 255, 0.04)';
+        this.holdCtx.lineWidth = 1;
+        const cellW = this.holdCanvas.width / 4;
+        const cellH = this.holdCanvas.height / 4;
+        for (let i = 1; i < 4; i++) {
+            this.holdCtx.beginPath();
+            this.holdCtx.moveTo(i * cellW, 0);
+            this.holdCtx.lineTo(i * cellW, this.holdCanvas.height);
+            this.holdCtx.stroke();
+            this.holdCtx.beginPath();
+            this.holdCtx.moveTo(0, i * cellH);
+            this.holdCtx.lineTo(this.holdCanvas.width, i * cellH);
+            this.holdCtx.stroke();
+        }
+        
         if (!this.heldPiece) {
-            // Draw placeholder
-            this.holdCtx.fillStyle = '#dee2e6';
-            this.holdCtx.font = '12px Arial';
+            // Draw a beautiful glowing placeholder text "GIỮ"
+            this.holdCtx.fillStyle = 'rgba(184, 41, 255, 0.2)';
+            this.holdCtx.font = 'bold 16px "Roboto", sans-serif';
             this.holdCtx.textAlign = 'center';
-            this.holdCtx.fillText('Giữ', this.holdCanvas.width / 2, this.holdCanvas.height / 2);
+            this.holdCtx.textBaseline = 'middle';
+            this.holdCtx.fillText('GIỮ', this.holdCanvas.width / 2, this.holdCanvas.height / 2);
             return;
         }
         
@@ -658,8 +724,8 @@ class TetrisGameLogic {
         const pieceWidth = piece.shape[0].length;
         const pieceHeight = piece.shape.length;
         
-        piece.x = Math.floor((4 - pieceWidth) / 2);
-        piece.y = Math.floor((4 - pieceHeight) / 2);
+        piece.x = (4 - pieceWidth) / 2;
+        piece.y = (4 - pieceHeight) / 2;
         
         this.drawPiece(piece, this.holdCanvas, this.holdCtx);
     }
