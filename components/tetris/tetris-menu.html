@@ -16,23 +16,23 @@
     
     <style>
         :root {
-            --primary-color: #6f42c1;
-            --secondary-color: #e83e8c;
-            --accent-color: #fd7e14;
+            --primary-color: #ff3385;
+            --secondary-color: #d633ff;
+            --accent-color: #ff5c93;
             --success-color: #28a745;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
-            --info-color: #17a2b8;
-            --dark-color: #343a40;
-            --light-color: #f8f9fa;
+            --info-color: #e0aaff;
+            --dark-color: #4a0e2e;
+            --light-color: #fff5f8;
             --white-color: #ffffff;
-            --shadow-light: rgba(0,0,0,0.1);
-            --shadow-medium: rgba(0,0,0,0.2);
-            --shadow-heavy: rgba(0,0,0,0.3);
-            --gradient-primary: linear-gradient(135deg, #6f42c1, #e83e8c);
-            --gradient-secondary: linear-gradient(135deg, #fd7e14, #ffc107);
-            --gradient-success: linear-gradient(135deg, #28a745, #20c997);
-            --gradient-danger: linear-gradient(135deg, #dc3545, #fd7e14);
+            --shadow-light: rgba(255, 102, 163, 0.1);
+            --shadow-medium: rgba(255, 102, 163, 0.15);
+            --shadow-heavy: rgba(255, 102, 163, 0.2);
+            --gradient-primary: linear-gradient(135deg, #ff3385, #d633ff);
+            --gradient-secondary: linear-gradient(135deg, #ff5c93, #ffd3b6);
+            --gradient-success: linear-gradient(135deg, #a8ffb2, #28a745);
+            --gradient-danger: linear-gradient(135deg, #ff9ebe, #dc3545);
         }
 
         * {
@@ -42,7 +42,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #fff5f8 0%, #ffe3ec 100%);
             min-height: 100vh;
             font-family: 'Roboto', sans-serif;
             color: var(--dark-color);
@@ -52,10 +52,10 @@
         }
 
         @keyframes gradientShift {
-            0%, 100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-            25% { background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); }
-            50% { background: linear-gradient(135deg, #e83e8c 0%, #6f42c1 100%); }
-            75% { background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); }
+            0%, 100% { background: linear-gradient(135deg, #fff5f8 0%, #ffe3ec 100%); }
+            25% { background: linear-gradient(135deg, #ffe3ec 0%, #ffc2d9 100%); }
+            50% { background: linear-gradient(135deg, #ffc2d9 0%, #f3d9fa 100%); }
+            75% { background: linear-gradient(135deg, #f3d9fa 0%, #fff5f8 100%); }
         }
 
         /* Animated Background Particles */
@@ -151,8 +151,9 @@
 
         .game-subtitle {
             font-size: clamp(1rem, 2.5vw, 1.5rem);
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 300;
+            color: var(--dark-color);
+            opacity: 0.85;
+            font-weight: 500;
             margin-bottom: 2rem;
             animation: fadeIn 1.5s ease-out 0.5s both;
         }
